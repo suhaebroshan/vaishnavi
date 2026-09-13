@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../db/store';
-import { SERVICES } from '../../db/seed';
+import { SERVICES, ACTIVE_OFFERS } from '../../db/seed';
 import { ServiceCard, BookingCard } from '../../components/Cards';
 import { IconSearch, IconMapPin, IconClock, IconStar } from '../../components/icons';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,41 @@ import { db } from '../../db/database';
 
 const container = { animate: { transition: { staggerChildren: 0.06 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
+
+function OfferCard({ offer, index }: { offer: any; index: number }) {
+  const navigate = useNavigate();
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => navigate('/search')}
+      className="w-full text-left rounded-[18px] p-4 flex items-center gap-3"
+      style={{
+        background: 'white',
+        border: '1.5px solid rgba(200,111,82,0.15)',
+        boxShadow: '0 2px 10px rgba(200,111,82,0.08), inset 0 1px 0 rgba(255,255,255,0.95)',
+      }}
+    >
+      <div className="w-10 h-10 rounded-[14px] flex items-center justify-center shrink-0"
+        style={{ background: 'rgba(200,111,82,0.10)' }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#C86F52]">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          <circle cx="7" cy="7" r="3" stroke="currentColor" strokeWidth="1.8" fill="none"/>
+        </svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm text-[#173F35]">{offer.title}</p>
+        <p className="text-[11px] text-[#7A8B7E] mt-0.5 leading-snug line-clamp-1">{offer.subtitle}</p>
+      </div>
+      <span className="text-[10px] font-extrabold px-2.5 py-1.5 rounded-full shrink-0"
+        style={{ background: 'rgba(200,111,82,0.10)', color: '#C86F52' }}>
+        {offer.ctaText}
+      </span>
+    </motion.button>
+  );
+}
 
 export default function CustomerHome() {
   const user = useAppStore(s => s.currentUser);
@@ -236,6 +271,21 @@ export default function CustomerHome() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── OFFERS RUNNING ───────────────────────── */}
+      <motion.div className="mx-5 mt-6" variants={container} initial="initial" animate="animate">
+        <motion.div variants={item} className="flex items-center justify-between mb-3">
+          <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Offers Running</p>
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(200,111,82,0.12)', color: '#C86F52' }}>
+            Live
+          </span>
+        </motion.div>
+        <motion.div variants={item} className="space-y-3">
+          {ACTIVE_OFFERS.map((offer, i) => (
+            <OfferCard key={offer.id} offer={offer} index={i} />
+          ))}
+        </motion.div>
+      </motion.div>
 
       {/* ── SERVICES SECTION ───────────────────────── */}
       <motion.div className="mx-5 mt-7" variants={container} initial="initial" animate="animate">

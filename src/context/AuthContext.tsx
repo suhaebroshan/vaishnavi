@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let target: any;
     if (role === 'customer') target = await import('../db/database').then(m => m.db.customers.get(userId || 'c1'));
     else if (role === 'worker') target = await import('../db/database').then(m => m.db.workers.get(userId || 'w1'));
-    else if (role === 'admin') target = await import('../db/database').then(m => m.db.admins.get('admin1'));
+    else if (role === 'admin') target = await import('../db/database').then(m => m.db.admins.get(userId || 'admin1'));
 
     if (target) {
       setSwitchingUser(target);

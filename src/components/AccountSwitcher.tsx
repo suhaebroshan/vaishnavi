@@ -3,43 +3,26 @@ import { useAppStore } from '../db/store';
 import type { UserRole } from '../types';
 
 const workerAvatars: Record<string, string> = {
-  'w1': 'Vikram Singh', 'w2': 'Ravi Kumar', 'w3': 'Mahesh Rao', 'w4': 'Arjun Reddy',
-  'w5': 'Rahul Kumar', 'w6': 'Priya Sharma', 'w7': 'Suresh Naidu', 'w8': 'Anjali Rao',
-  'w9': 'Deepak Verma', 'w10': 'Lakshmi Devi', 'w11': 'Kiran Patel', 'w12': 'Fatima Begum',
-  'w13': 'Venkat Rao', 'w14': 'Divya Sri', 'w15': 'Anil Kapoor',
-};
-
-const customerAvatars: Record<string, string> = {
-  'c1': 'Suhaeb', 'c2': 'Meera Sharma', 'c3': 'Ravi Kumar', 'c4': 'Ananya Reddy', 'c5': 'Arjun Mehta',
+  'w1': 'Vikram Singh', 'w2': 'Arjun Reddy', 'w3': 'Rahul Kumar', 'w4': 'Priya Sharma',
+  'w5': 'Suresh Naidu', 'w6': 'Anjali Rao', 'w7': 'Lakshmi Devi', 'w8': 'Deepak Verma',
 };
 
 const roleLabels: Record<string, string> = {
-  'c1': 'Customer', 'c2': 'Customer', 'c3': 'Customer', 'c4': 'Customer', 'c5': 'Customer',
-  'w1': 'Plumbing Professional', 'w2': 'Plumbing Professional', 'w3': 'Plumbing Professional',
-  'w4': 'Electrical Professional', 'w5': 'Housekeeping Professional',
-  'w6': 'Cooking Professional', 'w7': 'Security Professional', 'w8': 'Elder Care Professional',
-  'w9': 'Home Support Professional', 'w10': 'Caretaker Professional',
-  'w11': 'Electrical Professional', 'w12': 'Cooking Professional',
-  'w13': 'Housekeeping Professional', 'w14': 'Elder Care Professional', 'w15': 'Security Professional',
+  'c1': 'Customer · Banjara Hills',
+  'w1': 'Plumbing Professional', 'w2': 'Electrical Professional', 'w3': 'Housekeeping Professional',
+  'w4': 'Cooking Professional', 'w5': 'Security Professional', 'w6': 'Elder Care Professional',
+  'w7': 'Caretaker Professional', 'w8': 'Home Support Professional',
   'admin1': 'Administrator',
 };
 
 const avatarColors: Record<string, string> = {
-  'w1': '#173F35', 'w2': '#1E4D3F', 'w3': '#2D6A4F', 'w4': '#C86F52',
-  'w5': '#A8B9A5', 'w6': '#B55E42', 'w7': '#102F28', 'w8': '#1E4D3F',
-  'w9': '#173F35', 'w10': '#C86F52', 'w11': '#2D6A4F', 'w12': '#102F28',
-  'w13': '#173F35', 'w14': '#A8B9A5', 'w15': '#B55E42',
-  'c1': '#173F35', 'c2': '#C86F52', 'c3': '#1E4D3F', 'c4': '#2D6A4F', 'c5': '#A8B9A5',
-  'admin1': '#102F28',
+  'w1': '#173F35', 'w2': '#C86F52', 'w3': '#A8B9A5', 'w4': '#B55E42',
+  'w5': '#102F28', 'w6': '#1E4D3F', 'w7': '#C86F52', 'w8': '#173F35',
+  'c1': '#173F35', 'admin1': '#102F28',
 };
 
 type PersonEntry = {
-  id: string;
-  name: string;
-  role: string;
-  roleLabel: string;
-  color: string;
-  type: 'customer' | 'worker' | 'admin';
+  id: string; name: string; role: string; roleLabel: string; color: string; type: 'customer' | 'worker' | 'admin';
 };
 
 export default function AccountSwitcher({
@@ -53,22 +36,19 @@ export default function AccountSwitcher({
 
   const people: PersonEntry[] = [
     { id: 'c1', name: 'Suhaeb', role: 'customer', roleLabel: 'Customer · Banjara Hills', color: '#173F35', type: 'customer' },
-    { id: 'c2', name: 'Meera Sharma', role: 'customer', roleLabel: 'Customer ·HITEC City', color: '#C86F52', type: 'customer' },
-    { id: 'c3', name: 'Ravi Kumar', role: 'customer', roleLabel: 'Customer · Gachibowli', color: '#1E4D3F', type: 'customer' },
-    { id: 'c4', name: 'Ananya Reddy', role: 'customer', roleLabel: 'Customer · Jubilee Hills', color: '#2D6A4F', type: 'customer' },
     { id: 'w1', name: 'Vikram Singh', role: 'worker', roleLabel: 'Plumbing Professional', color: '#173F35', type: 'worker' },
-    { id: 'w2', name: 'Ravi Kumar', role: 'worker', roleLabel: 'Plumbing Professional', color: '#1E4D3F', type: 'worker' },
-    { id: 'w3', name: 'Mahesh Rao', role: 'worker', roleLabel: 'Plumbing Professional', color: '#2D6A4F', type: 'worker' },
-    { id: 'w4', name: 'Arjun Reddy', role: 'worker', roleLabel: 'Electrical Professional', color: '#C86F52', type: 'worker' },
-    { id: 'w5', name: 'Rahul Kumar', role: 'worker', roleLabel: 'Housekeeping Professional', color: '#A8B9A5', type: 'worker' },
-    { id: 'w6', name: 'Priya Sharma', role: 'worker', roleLabel: 'Cooking Professional', color: '#B55E42', type: 'worker' },
-    { id: 'w7', name: 'Suresh Naidu', role: 'worker', roleLabel: 'Security Professional', color: '#102F28', type: 'worker' },
-    { id: 'w8', name: 'Anjali Rao', role: 'worker', roleLabel: 'Elder Care Professional', color: '#1E4D3F', type: 'worker' },
+    { id: 'w2', name: 'Arjun Reddy', role: 'worker', roleLabel: 'Electrical Professional', color: '#C86F52', type: 'worker' },
+    { id: 'w3', name: 'Rahul Kumar', role: 'worker', roleLabel: 'Housekeeping Professional', color: '#A8B9A5', type: 'worker' },
+    { id: 'w4', name: 'Priya Sharma', role: 'worker', roleLabel: 'Cooking Professional', color: '#B55E42', type: 'worker' },
+    { id: 'w5', name: 'Suresh Naidu', role: 'worker', roleLabel: 'Security Professional', color: '#102F28', type: 'worker' },
+    { id: 'w6', name: 'Anjali Rao', role: 'worker', roleLabel: 'Elder Care Professional', color: '#1E4D3F', type: 'worker' },
+    { id: 'w7', name: 'Lakshmi Devi', role: 'worker', roleLabel: 'Caretaker Professional', color: '#C86F52', type: 'worker' },
+    { id: 'w8', name: 'Deepak Verma', role: 'worker', roleLabel: 'Home Support Professional', color: '#173F35', type: 'worker' },
     { id: 'admin1', name: 'Vaishnavi Ops', role: 'admin', roleLabel: 'Administrator', color: '#102F28', type: 'admin' },
   ];
 
   const currentPersonId = currentUser?.role === 'admin' ? 'admin1' :
-    currentUser?.role === 'worker' ? (currentUser as any).id || 'w1' : 'c1';
+    currentUser?.role === 'worker' ? ((currentUser as any).id || 'w1') : 'c1';
   const currentIdx = people.findIndex(p => p.id === currentPersonId);
 
   return (
@@ -90,7 +70,7 @@ export default function AccountSwitcher({
               background: '#FBF9F4',
               boxShadow: '0 -8px 40px rgba(23,63,53,0.25)',
               borderTop: '1px solid rgba(255,255,255,0.5)',
-              maxHeight: '75vh',
+              maxHeight: '80vh',
             }}
           >
             {/* Handle */}
@@ -99,7 +79,7 @@ export default function AccountSwitcher({
             </div>
 
             {/* Header */}
-            <div className="px-5 pb-2 sticky top-0 z-10" style={{ background: '#FBF9F4' }}>
+            <div className="px-5 pb-3 sticky top-0 z-10" style={{ background: '#FBF9F4' }}>
               <p className="text-[10px] font-extrabold tracking-[0.2em] text-[#8A9B8E] uppercase">Switch Experience</p>
             </div>
 
@@ -126,7 +106,7 @@ export default function AccountSwitcher({
             </div>
 
             {/* Scrollable list */}
-            <div className="overflow-y-auto px-4 pb-8 scrollbar-hide" style={{ maxHeight: 'calc(75vh - 140px)' }}>
+            <div className="overflow-y-auto px-4 pb-8 scrollbar-hide" style={{ maxHeight: 'calc(80vh - 140px)' }}>
               <p className="text-[10px] font-extrabold tracking-[0.15em] text-[#A8B9A5] uppercase mb-2 mt-1 pl-1">All Accounts</p>
               {people.map((person, i) => (
                 <motion.button
