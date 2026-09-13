@@ -101,7 +101,7 @@ export default function WorkerRequests() {
               <div className="space-y-2 mb-4">
                 <Detail icon={<IconCalendar size={14} />} label="Date" value={req.date} />
                 <Detail icon={<IconClock size={14} />} label="Time" value={req.time} />
-                <Detail icon={<IconMapPin size={14} />} label="Location" value="Banjara Hills, Hyderabad" />
+                <Detail icon={<IconMapPin size={14} />} label="Location" value={(req as any).addressLabel || 'Hyderabad'} />
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-[rgba(23,63,53,0.06)]">

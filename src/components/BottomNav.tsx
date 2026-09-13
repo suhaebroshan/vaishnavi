@@ -54,6 +54,7 @@ export default function BottomNav() {
                 }
               }}
               className="flex flex-col items-center gap-0.5 px-4 py-1 rounded-2xl relative"
+              data-testid={`nav-${item.label.toLowerCase()}`}
             >
               <IconComp
                 size={22}
