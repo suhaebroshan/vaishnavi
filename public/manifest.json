@@ -1,17 +1,19 @@
 {
-  "name": "Vaishnavi",
+  "name": "Vaishnavi — Home Services",
   "short_name": "Vaishnavi",
-  "description": "Premium home services marketplace",
+  "description": "Premium home services marketplace — book housekeeping, plumbing, cooking, and more.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F0E7",
+  "orientation": "portrait",
+  "background_color": "#F5F0E8",
   "theme_color": "#173F35",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/favicon.ico",
-      "sizes": "any",
+      "sizes": "48x48 72x72 96x96 144x144 192x192",
       "type": "image/x-icon"
     }
-  ]
+  ],
+  "categories": ["lifestyle", "utilities"],
+  "lang": "en-IN"
 }
