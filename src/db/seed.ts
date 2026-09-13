@@ -357,8 +357,18 @@ function generateAllBookings(): (Booking | BookingEvent)[] {
    ═══════════════════════════════════════════════════════════ */
 export async function seedDatabase() {
   try {
-    const userCount = await db.users.count();
-    if (userCount > 0) return; // already seeded
+    // Wait for the database to be ready (migration may still be in progress)
+    await db.open();
+
+    // Clear any stale data from a previous schema mismatch
+    try {
+      const storeNames = Object.keys(db.tables).filter((k: any) => k !== '__proto__' && k !== 'constructor');
+      for (const storeName of storeNames) {
+        await (db as any)[storeName].clear();
+      }
+    } catch {
+      // Some stores may not exist yet during migration — ignore
+    }
 
     const allUsers: User[] = [
       ...CUSTOMERS.map(c => ({ ...c, role: 'customer' as const })),
@@ -398,5 +408,12 @@ export async function seedDatabase() {
     console.log('[Seed] Database initialized with', bk.length, 'bookings,', WORKERS.length, 'workers, 1 customer');
   } catch (e) {
     console.error('[DB Seed Error]', e);
+    // If seed fails catastrophically (e.g. schema mismatch), delete and retry once
+    try {
+      await db.delete();
+      console.log('[DB] Deleted corrupted database, will reinitialize on next load');
+    } catch {
+      // Ignore — will retry on next page load
+    }
   }
 }
