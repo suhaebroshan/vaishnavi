@@ -107,6 +107,17 @@ export const IconClock = (p: IconProps) => (
   </BaseIcon>
 );
 
+export const IconCalendarDays = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <rect x="6" y="13" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+    <rect x="11" y="13" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+  </BaseIcon>
+);
+
 export const IconStar = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
   <svg width={p.size || 24} height={p.size || 24} viewBox="0 0 24 24"
     fill={filled ? "currentColor" : "none"} stroke="currentColor"
@@ -505,5 +516,5 @@ export default {
   IconHelpCircle, IconCreditCard, IconHeartOutline, IconWifi,
   IconWifiOff, IconShield, IconWrench, IconLightning, IconSparkle,
   IconHeart, IconChef, IconBroom, IconSettings, IconMoreHorizontal,
-  IconPause, IconPlay,
+  IconPause, IconPlay, IconCalendarDays,
 };

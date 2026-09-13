@@ -136,7 +136,7 @@ function WorkerDetailPanel({ worker, onClose }: { worker: any; onClose: () => vo
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center text-xs mb-4">
-          <div className="bg-[#F5F0E7] rounded-xl py-2"><p className="font-bold text-[#173F35] text-base">{worker.rating}⭐</p><p className="text-[#7A8B7E]">Rating</p></div>
+          <div className="bg-[#F5F0E7] rounded-xl py-2"><div className="flex items-center justify-center gap-1"><p className="font-bold text-[#173F35] text-base">{worker.rating}</p><svg width="12" height="12" viewBox="0 0 24 24" fill="#C86F52" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p className="text-[#7A8B7E]">Rating</p></div></div>
           <div className="bg-[#F5F0E7] rounded-xl py-2"><p className="font-bold text-[#173F35] text-base">{worker.totalJobs}</p><p className="text-[#7A8B7E]">Jobs</p></div>
           <div className="bg-[#F5F0E7] rounded-xl py-2"><p className="font-bold text-[#173F35] text-base">{worker.completionRate}%</p><p className="text-[#7A8B7E]">Complete</p></div>
         </div>

@@ -8,15 +8,15 @@ import { useDatabaseInit } from './db/use-db-init';
 import { DBProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
 import CustomerHome from './pages/customer/Home';
+import CustomerHistory from './pages/customer/History';
+import CustomerBookings from './pages/customer/Bookings';
 import ServiceDetail from './pages/customer/ServiceDetail';
 import Tracking from './pages/customer/Tracking';
 import Chat from './pages/customer/Chat';
 import CallScreen from './pages/customer/Call';
-import Bookings from './pages/customer/Bookings';
 import BookingDetail from './pages/customer/BookingDetail';
 import Profile from './pages/customer/Profile';
 import Notifications from './pages/customer/Notifications';
-import Search from './pages/customer/Search';
 import WorkerHome from './pages/worker/Home';
 import WorkerRequests from './pages/worker/Requests';
 import WorkerJobs from './pages/worker/Jobs';
@@ -103,11 +103,11 @@ function AppRoutes() {
                 {/* ── CUSTOMER ── */}
                 <Route path="/" element={renderPage(<CustomerHome />, 'customer-home')} />
                 <Route path="/service/:id" element={renderPage(<ServiceDetail />, 'service-detail')} />
-                <Route path="/search" element={renderPage(<Search />, 'search')} />
+                <Route path="/history" element={renderPage(<CustomerHistory />, 'customer-history')} />
+                <Route path="/bookings" element={renderPage(<CustomerBookings />, 'customer-bookings')} />
                 <Route path="/tracking" element={renderPage(<Tracking />, 'tracking')} />
                 <Route path="/chat" element={renderPage(<Chat />, 'chat')} />
                 <Route path="/call" element={renderPage(<CallScreen />, 'call')} />
-                <Route path="/bookings" element={renderPage(<Bookings />, 'bookings')} />
                 <Route path="/booking/:id" element={renderPage(<BookingDetail />, 'booking-detail')} />
                 <Route path="/profile" element={renderPage(<Profile />, 'profile')} />
                 <Route path="/notifications" element={renderPage(<Notifications />, 'notifications')} />

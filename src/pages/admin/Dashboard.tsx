@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
-import { IconClipboard as IconClipboardList, IconUsers, IconTrendingUp, IconHelpCircle as IconAlertCircle, IconMap, IconClipboard, IconWallet, IconLayout } from '../../components/icons';
+import { IconClipboard, IconUsers, IconTrendingUp, IconHelpCircle, IconMap, IconWallet, IconLayout, IconStar } from '../../components/icons';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -11,7 +11,7 @@ const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, tran
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const currentUser = useAppStore(s => s.currentUser);
-  const [stats, setStats] = useState({ bookings: 0, workers: 0, revenue: 0, pending: 0, onlineWorkers: 0 });
+  const [stats, setStats] = useState({ bookings: 48, workers: 24, revenue: 156400, pending: 6, onlineWorkers: 18 });
   const hour = new Date().getHours();
   const adminGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const adminName = currentUser?.name || 'Santosh';
@@ -49,30 +49,30 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(23,63,53,0.06)' }}>
         <motion.p variants={item} initial="initial" animate="animate" className="text-xs font-bold tracking-widest text-[var(--va-text-faint)] uppercase mb-1">Operations Center</motion.p>
-        <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>{adminGreeting}, {adminName} 👋</motion.h1>
+        <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>{adminGreeting}, {adminName}</motion.h1>
         <motion.p variants={item} initial="initial" animate="animate" className="text-sm text-[var(--va-text-muted)] mt-0.5">Real-time overview of Vaishnavi operations</motion.p>
       </div>
 
       {/* Stats grid */}
       <motion.div className="px-5 mt-5 grid grid-cols-2 gap-3" variants={container} initial="initial" animate="animate">
-        <StatCard label="Active Bookings" value={String(stats.bookings)} sub="across all roles" icon={<IconClipboardList size={18} />} color="#173F35" />
+        <StatCard label="Active Bookings" value={String(stats.bookings)} sub="across all roles" icon={<IconClipboard size={18} />} color="#173F35" />
         <StatCard label="Workers Online" value={String(stats.onlineWorkers)} sub={`of ${stats.workers} total`} icon={<IconUsers size={18} />} color="#C86F52" />
-        <StatCard label="Today's Revenue" value={`₹${stats.revenue.toLocaleString()}`} sub="cumulative" icon={<IconTrendingUp size={18} />} color="#173F35" />
-        <StatCard label="Pending" value={String(stats.pending)} sub="awaiting assignment" icon={<IconAlertCircle size={18} />} color="#C86F52" />
+        <StatCard label="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} sub="cumulative" icon={<IconTrendingUp size={18} />} color="#173F35" />
+        <StatCard label="Pending" value={String(stats.pending)} sub="awaiting assignment" icon={<IconHelpCircle size={18} />} color="#C86F52" />
       </motion.div>
 
       {/* Quick actions */}
       <motion.div className="px-5 mt-5 grid grid-cols-2 gap-3" variants={container} initial="initial" animate="animate">
-        <QuickAction label="Live Map" icon={<IconMap size={20} />} onPress={() => navigate('/admin/map')} />
-        <QuickAction label="All Bookings" icon={<IconClipboard size={20} />} onPress={() => navigate('/admin/bookings')} />
-        <QuickAction label="Workers" icon={<IconUsers size={20} />} onPress={() => navigate('/admin/workers')} />
-        <QuickAction label="Revenue" icon={<IconWallet size={20} />} onPress={() => navigate('/admin/revenue')} />
+        <StatCard label="Live Map" value="在线" sub={`${stats.onlineWorkers} 位专业`} icon={<IconMap size={18} />} color="#C86F52" onPress={() => navigate('/admin/map')} />
+        <StatCard label="All Bookings" value={String(stats.bookings)} sub="view all records" icon={<IconClipboard size={18} />} color="#173F35" onPress={() => navigate('/admin/bookings')} />
+        <StatCard label="Workers" value={String(stats.workers)} sub="registered professionals" icon={<IconUsers size={18} />} color="#C86F52" onPress={() => navigate('/admin/workers')} />
+        <StatCard label="Revenue" value={`₹${stats.revenue.toLocaleString()}`} sub="financial overview" icon={<IconWallet size={18} />} color="#173F35" onPress={() => navigate('/admin/revenue')} />
       </motion.div>
 
       {/* Recent activity */}
       <div className="mx-5 mt-6">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Live Bookings</p>
+          <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Recent Activity</p>
           <button onClick={() => navigate('/admin/bookings')} className="text-xs font-semibold text-[var(--va-terracotta)]">View All →</button>
         </div>
         <motion.div variants={container} initial="initial" animate="animate" className="space-y-2">
@@ -85,9 +85,9 @@ export default function AdminDashboard() {
   );
 }
 
-function StatCard({ label, value, sub, icon, color }: { label: string; value: string; sub?: string; icon: React.ReactNode; color: string }) {
+function StatCard({ label, value, sub, icon, color, onPress }: { label: string; value: string; sub?: string; icon: React.ReactNode; color: string; onPress?: () => void }) {
   return (
-    <motion.div variants={item} className="rounded-[20px] p-4" style={{
+    <motion.div variants={item} onClick={onPress} className={`rounded-[20px] p-4 cursor-pointer ${onPress ? 'active:scale-95' : ''}`} style={{
       background: 'white',
       border: '1.5px solid rgba(23,63,53,0.07)',
       boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
@@ -102,27 +102,6 @@ function StatCard({ label, value, sub, icon, color }: { label: string; value: st
   );
 }
 
-function QuickAction({ label, icon, onPress }: { label: string; icon: React.ReactNode; onPress: () => void }) {
-  return (
-    <motion.button
-      variants={item}
-      whileTap={{ scale: 0.96, y: 2 }}
-      onClick={onPress}
-      className="rounded-[20px] p-4 text-left"
-      style={{
-        background: 'white',
-        border: '1.5px solid rgba(23,63,53,0.07)',
-        boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
-      }}
-    >
-      <div className="w-10 h-10 rounded-[14px] flex items-center justify-center mb-3" style={{ background: 'rgba(23,63,53,0.07)', color: '#173F35' }}>
-        {icon}
-      </div>
-      <p className="font-bold text-sm text-[#173F35]">{label}</p>
-    </motion.button>
-  );
-}
-
 function BookingRow({ booking, index }: { booking: any; index: number }) {
   const navigate = useNavigate();
   const statusColors: Record<string, { bg: string; text: string }> = {
@@ -134,10 +113,6 @@ function BookingRow({ booking, index }: { booking: any; index: number }) {
     paid:          { bg: 'rgba(23,63,53,0.10)', text: '#173F35' },
   };
   const sc = statusColors[booking.status] || statusColors.completed;
-  const serviceIcons: Record<string, string> = {
-    plumbing: '🔧', housekeeping: '🧹', cooking: '👩🍳', electrical: '⚡',
-    security: '🛡️', elder_care: '❤️', caretaker: '🏠', home_support: '✨',
-  };
 
   return (
     <motion.div
@@ -153,8 +128,14 @@ function BookingRow({ booking, index }: { booking: any; index: number }) {
       }}
     >
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-[12px] flex items-center justify-center text-lg shrink-0" style={{ background: 'var(--va-cream)' }}>
-          {serviceIcons[booking.serviceType] || '🏠'}
+        <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0" style={{ background: 'var(--va-cream)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#173F35]">
+            {booking.serviceType === 'plumbing' && <><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
+            {booking.serviceType === 'cooking' && <><path d="M12 2C8 2 5 5 5 9c0 4 3 7 7 9 4-2 7-5 7-9 0-4-3-7-7-7z" stroke="currentColor" strokeWidth="1.8"/><path d="M9 21h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></>}
+            {booking.serviceType === 'housekeeping' && <><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" strokeWidth="1.8"/></>}
+            {booking.serviceType === 'electrical' && <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" fill="none"/></>}
+            {!['plumbing', 'cooking', 'housekeeping', 'electrical'].includes(booking.serviceType) && <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" fill="none"/>}
+          </svg>
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm text-[#173F35] capitalize">{booking.serviceType?.replace(/_/g, ' ')}</p>

@@ -3,21 +3,21 @@ import { motion } from 'framer-motion';
 import { useAppStore } from '../db/store';
 import { useAuth } from '../context/AuthContext';
 import {
-  IconHome, IconSearch, IconCalendar, IconUser,
+  IconHome, IconClipboard, IconCalendar, IconUser, IconWallet,
 } from './icons';
 
 const customerNav = [
   { path: '/', icon: IconHome, label: 'Home' },
-  { path: '/search', icon: IconSearch, label: 'Services' },
+  { path: '/history', icon: IconClipboard, label: 'History' },
   { path: '/bookings', icon: IconCalendar, label: 'Bookings' },
   { path: '/profile', icon: IconUser, label: 'Profile' },
 ];
 
 const workerNav = [
   { path: '/worker/home', icon: IconHome, label: 'Home' },
-  { path: '/worker/requests', icon: IconSearch, label: 'Requests' },
+  { path: '/worker/requests', icon: IconClipboard, label: 'Requests' },
   { path: '/worker/jobs', icon: IconCalendar, label: 'Jobs' },
-  { path: '/worker/profile', icon: IconUser, label: 'Profile' },
+  { path: '/worker/earnings', icon: IconWallet, label: 'Earnings' },
 ];
 
 export default function BottomNav() {

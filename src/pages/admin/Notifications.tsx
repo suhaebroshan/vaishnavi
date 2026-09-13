@@ -77,7 +77,7 @@ export default function AdminNotifications() {
               className={`flex items-start gap-3 p-4 rounded-2xl ${n.reading ? 'bg-white/60' : 'bg-white'} border border-[rgba(23,63,53,0.06)]`}
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${n.reading ? 'bg-[#F5F0E7]' : 'bg-[#173F35]'}`}>
-                <span className="text-sm">{n.type === 'booking_update' ? '📋' : n.type === 'new_booking' ? '🆕' : '🔔'}</span>
+                {n.type === 'booking_update' ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> : n.type === 'new_booking' ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-[#173F35]">{n.title}</p>

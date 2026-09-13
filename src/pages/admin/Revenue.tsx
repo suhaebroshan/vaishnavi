@@ -98,7 +98,7 @@ export default function AdminRevenue() {
               <div className="w-8 h-8 rounded-full bg-[#173F35] flex items-center justify-center text-white text-xs font-bold">{w.name.charAt(0)}</div>
               <div className="flex-1">
                 <p className="font-semibold text-sm text-[#173F35]">{w.name}</p>
-                <p className="text-xs text-[#7A8B7E]">{w.jobs} jobs · ⭐ {w.rating}</p>
+                <p className="text-xs text-[#7A8B7E]">{w.jobs} jobs · <span className="text-yellow-500">★</span> {w.rating}</p>
               </div>
               <span className="font-bold text-sm text-[#173F35]">{w.revenue}</span>
             </div>

@@ -161,7 +161,7 @@ export default function ServiceDetail() {
                 </div>
               </div>
               <InfoRow icon="👤" label="Professional" value={selectedWorker?.name || '—'} />
-              <InfoRow icon="📅" label="Date" value={selectedDate ? new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : '—'} />
+              <InfoRow icon="calendar" label="Date" value={selectedDate ? new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : '—'} />
               <InfoRow icon="🕐" label="Time" value={selectedTime || '—'} />
               <InfoRow icon="📍" label="Location" value={address?.line1 ? `${address.line1}, ${address.line2}` : 'Banjara Hills, Hyderabad'} />
               <div className="mt-4 pt-4 border-t border-[rgba(23,63,53,0.07)] flex items-center justify-between">

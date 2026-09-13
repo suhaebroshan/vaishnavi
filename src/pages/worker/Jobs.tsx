@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
 import { StatusBadge } from '../../components/Cards';
-import { IconMapPin, IconClock, IconNav } from '../../components/icons';
+import { IconMapPin, IconClock, IconNav, IconClipboard } from '../../components/icons';
 
 type Tab = 'upcoming' | 'active' | 'completed';
 
@@ -57,7 +57,7 @@ export default function WorkerJobs() {
           [...Array(3)].map((_, i) => <div key={i} className="h-24 bg-white rounded-2xl animate-pulse" />)
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-4xl mb-3">📋</p>
+            <IconClipboard size={48} className="text-[#D4CFC4]" />
             <p className="text-[#7A8B7E]">No {tab} jobs</p>
           </div>
         ) : (

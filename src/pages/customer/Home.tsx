@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../db/store';
 import { SERVICES, ACTIVE_OFFERS } from '../../db/seed';
 import { ServiceCard, BookingCard } from '../../components/Cards';
-import { IconSearch, IconMapPin, IconClock, IconStar } from '../../components/icons';
+import { IconSearch, IconMapPin, IconClock, IconBell } from '../../components/icons';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { db } from '../../db/database';
@@ -92,7 +92,7 @@ export default function CustomerHome() {
       <div className="sticky top-0 z-30 bg-[#FBF9F4]/95 backdrop-blur-xl px-5 pt-4 pb-3 border-b border-[rgba(23,63,53,0.06)]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm text-[#5A6B5E] font-medium">{greeting}, {firstName} 👋</p>
+            <p className="text-sm text-[#5A6B5E] font-medium">{greeting}, {firstName}</p>
             <div className="flex items-center gap-1 mt-0.5">
               <IconMapPin size={12} className="text-[#C86F52]" />
               <span className="text-xs font-semibold text-[#8A9B8E]">Banjara Hills, Hyderabad</span>
@@ -103,10 +103,7 @@ export default function CustomerHome() {
               onClick={() => navigate('/notifications')}
               className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[#173F35]">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
+              <IconBell size={20} className="text-[#173F35]" />
               {unreadCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -164,7 +161,6 @@ export default function CustomerHome() {
                 boxShadow: '0 4px 24px rgba(23,63,53,0.10), inset 0 1px 0 rgba(255,255,255,0.95)',
               }}
             >
-              {/* Top status strip */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div
@@ -192,7 +188,6 @@ export default function CustomerHome() {
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Worker avatar with ring animation */}
                 <div className="relative shrink-0">
                   <div
                     className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold"
@@ -310,7 +305,7 @@ export default function CustomerHome() {
         <motion.div className="mx-5 mt-6" variants={container} initial="initial" animate="animate">
           <motion.div variants={item} className="flex items-center justify-between mb-3">
             <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Recent Bookings</p>
-            <button onClick={() => navigate('/bookings')} className="text-xs font-semibold text-[#C86F52]">View All</button>
+            <button onClick={() => navigate('/history')} className="text-xs font-semibold text-[#C86F52]">View All</button>
           </motion.div>
           <motion.div variants={item} className="space-y-3">
             {recentBookings.map((b, i) => (

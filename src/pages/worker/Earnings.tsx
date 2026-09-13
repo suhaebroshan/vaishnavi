@@ -85,7 +85,7 @@ export default function WorkerEarnings() {
               <p className="text-xs text-[#7A8B7E]">Average Rating</p>
               <div className="flex items-center gap-1 mt-1">
                 <span className="text-3xl font-bold text-[#173F35]">{stats.rating}</span>
-                <span className="text-yellow-500">⭐</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#C86F52" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               </div>
             </div>
             <div className="text-right">

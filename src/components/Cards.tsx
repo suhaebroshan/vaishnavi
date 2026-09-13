@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ServiceIcon, StarRating } from './icons';
+import { ServiceIcon, StarRating, IconCalendar } from './icons';
 
 const SPRING = { type: 'spring', damping: 18, stiffness: 300 };
 const FADE_UP = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: SPRING };
@@ -116,13 +116,11 @@ export function BookingCard({ booking, worker, onPress }: { booking: any; worker
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <div
-            className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(23,63,53,0.07)' }}
-          >
-            <span style={{ fontSize: 20 }}>{booking.serviceType === 'plumbing' ? '🔧' : booking.serviceType === 'cooking' ? '👩🍳' : booking.serviceType === 'housekeeping' ? '🧹' : booking.serviceType === 'electrical' ? '⚡' : booking.serviceType === 'security' ? '🛡️' : '🏠'}</span>
+          <div className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(23,63,53,0.07)' }}>
+            <ServiceIcon serviceId={booking.serviceType} size={22} color="#173F35" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="font-bold text-[#173F35] text-sm capitalize">{svc}</p>
             <p className="text-[11px] text-[#7A8B7E] mt-0.5">{worker?.name || 'Professional'}</p>
           </div>
@@ -134,9 +132,9 @@ export function BookingCard({ booking, worker, onPress }: { booking: any; worker
           {booking.status === 'on_the_way' ? '● LIVE' : booking.status.replace(/_/g, ' ')}
         </span>
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(23,63,53,0.06)]">
         <div className="flex items-center gap-3 text-[11px] text-[#7A8B7E]">
-          <span className="flex items-center gap-1">📅 {booking.date}</span>
+          <span className="flex items-center gap-1"><IconCalendar size={11} /> {booking.date}</span>
           <span>·</span>
           <span>{booking.time}</span>
         </div>
