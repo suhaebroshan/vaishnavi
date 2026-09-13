@@ -2,25 +2,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../db/store';
 import type { UserRole } from '../types';
 
-const workerAvatars: Record<string, string> = {
-  'w1': 'Vikram Singh', 'w2': 'Arjun Reddy', 'w3': 'Rahul Kumar', 'w4': 'Priya Sharma',
-  'w5': 'Suresh Naidu', 'w6': 'Anjali Rao', 'w7': 'Lakshmi Devi', 'w8': 'Deepak Verma',
-};
-
-const roleLabels: Record<string, string> = {
-  'c1': 'Customer · Banjara Hills',
-  'w1': 'Plumbing Professional', 'w2': 'Electrical Professional', 'w3': 'Housekeeping Professional',
-  'w4': 'Cooking Professional', 'w5': 'Security Professional', 'w6': 'Elder Care Professional',
-  'w7': 'Caretaker Professional', 'w8': 'Home Support Professional',
-  'admin1': 'Administrator',
-};
-
-const avatarColors: Record<string, string> = {
-  'w1': '#173F35', 'w2': '#C86F52', 'w3': '#A8B9A5', 'w4': '#B55E42',
-  'w5': '#102F28', 'w6': '#1E4D3F', 'w7': '#C86F52', 'w8': '#173F35',
-  'c1': '#173F35', 'admin1': '#102F28',
-};
-
 type PersonEntry = {
   id: string; name: string; role: string; roleLabel: string; color: string; type: 'customer' | 'worker' | 'admin';
 };
@@ -37,13 +18,6 @@ export default function AccountSwitcher({
   const people: PersonEntry[] = [
     { id: 'c1', name: 'Suhaeb', role: 'customer', roleLabel: 'Customer · Banjara Hills', color: '#173F35', type: 'customer' },
     { id: 'w1', name: 'Vikram Singh', role: 'worker', roleLabel: 'Plumbing Professional', color: '#173F35', type: 'worker' },
-    { id: 'w2', name: 'Arjun Reddy', role: 'worker', roleLabel: 'Electrical Professional', color: '#C86F52', type: 'worker' },
-    { id: 'w3', name: 'Rahul Kumar', role: 'worker', roleLabel: 'Housekeeping Professional', color: '#A8B9A5', type: 'worker' },
-    { id: 'w4', name: 'Priya Sharma', role: 'worker', roleLabel: 'Cooking Professional', color: '#B55E42', type: 'worker' },
-    { id: 'w5', name: 'Suresh Naidu', role: 'worker', roleLabel: 'Security Professional', color: '#102F28', type: 'worker' },
-    { id: 'w6', name: 'Anjali Rao', role: 'worker', roleLabel: 'Elder Care Professional', color: '#1E4D3F', type: 'worker' },
-    { id: 'w7', name: 'Lakshmi Devi', role: 'worker', roleLabel: 'Caretaker Professional', color: '#C86F52', type: 'worker' },
-    { id: 'w8', name: 'Deepak Verma', role: 'worker', roleLabel: 'Home Support Professional', color: '#173F35', type: 'worker' },
     { id: 'admin1', name: 'Vaishnavi Ops', role: 'admin', roleLabel: 'Administrator', color: '#102F28', type: 'admin' },
   ];
 
