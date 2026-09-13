@@ -179,27 +179,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
   const switchToRole = useAppStore(s => s.switchToRole);
-  const [progress, setProgress] = useState(0);
-
-  // Load stored user on mount — if one exists, navigate to the right place
-  useEffect(() => {
-    const stored = localStorage.getItem('vaishnavi-current-user');
-    if (stored) {
-      try {
-        const user = JSON.parse(stored) as any;
-        if (user?.role) {
-          const role = user.role as 'customer' | 'worker' | 'admin';
-          setCurrentUser(user);
-          switchToRole(role);
-          setTimeout(() => {
-            navigate(role === 'admin' ? '/admin/dashboard' : role === 'worker' ? '/worker/home' : '/');
-          }, 50);
-          return;
-        }
-      } catch {}
-    }
-    // No stored user — nothing to do, show the cards
-  }, []);
+  // No progress bar needed — cards render immediately on mount.
 
   const handleSelect = async (role: AccountType) => {
     await switchToRole(role);
@@ -214,19 +194,10 @@ export default function Landing() {
       localStorage.setItem('vaishnavi-current-user', JSON.stringify(fresh));
     }
 
-    setTimeout(() => {
-      navigate(role === 'admin' ? '/admin/dashboard' : role === 'worker' ? '/worker/home' : '/');
-    }, 400);
+    // Navigate immediately after store is ready — no delay needed
+    const targetPath = role === 'admin' ? '/admin/dashboard' : role === 'worker' ? '/worker/home' : '/';
+    navigate(targetPath);
   };
-
-  // Progress bar animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(p => (p >= 100 ? 100 : Math.min(p + (100 - p) * 0.12, 99)));
-    }, 80);
-    const timer = setTimeout(() => setProgress(100), LOADER_DURATION);
-    return () => { clearInterval(interval); clearTimeout(timer); };
-  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#FBF9F4' }}>

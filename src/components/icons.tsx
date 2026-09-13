@@ -389,6 +389,13 @@ export const IconMoreHorizontal = (p: IconProps) => (
   </BaseIcon>
 );
 
+export const IconSwap = (p: IconProps) => (
+  <BaseIcon {...p}>
+    <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+    <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+  </BaseIcon>
+);
+
 export const IconMinus = (p: IconProps) => (
   <BaseIcon {...p}>
     <line x1="5" y1="12" x2="19" y2="12"/>

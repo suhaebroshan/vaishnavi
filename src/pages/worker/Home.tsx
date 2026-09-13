@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
-import { IconBell, IconClock, IconMapPin, IconTrendingUp, IconCheckCircle, IconWallet, IconBriefcase, IconStar, IconUser, IconCalendarDays } from '../../components/icons';
+import { IconBell, IconClock, IconMapPin, IconTrendingUp, IconCheckCircle, IconWallet, IconBriefcase, IconStar, IconCalendarDays, IconSwap } from '../../components/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAuth } from '../../context/AuthContext';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -12,6 +13,7 @@ const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, tran
 export default function WorkerHome() {
   const navigate = useNavigate();
   const user = useAppStore(s => s.currentUser);
+  const { setShowAccountSwitcher } = useAuth();
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [weekEarnings, setWeekEarnings] = useState(0);
   const [monthEarnings, setMonthEarnings] = useState(0);
@@ -75,7 +77,24 @@ export default function WorkerHome() {
             <p className="text-sm text-[#5A6B5E] font-medium">{greeting}, {user?.name?.split(' ')[0]}</p>
             <h1 className="font-extrabold text-[#173F35] text-lg" style={{ letterSpacing: '-0.02em' }}>Dashboard</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Switch Profile Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => setShowAccountSwitcher(true)}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full active:scale-95 transition-transform"
+              style={{ background: 'rgba(23,63,53,0.07)' }}
+              data-testid="switch-profile-btn"
+            >
+              <motion.span
+                animate={{ rotate: [0, 180, 180] }}
+                transition={{ duration: 0.4, times: [0, 0.6, 1] }}
+              >
+                <IconSwap size={14} className="text-[#173F35]" />
+              </motion.span>
+              <span className="text-[11px] font-bold text-[#173F35]">Switch</span>
+            </motion.button>
             <button
               onClick={() => navigate('/worker/requests')}
               className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95"

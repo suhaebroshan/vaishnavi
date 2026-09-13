@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import CustomerHome from './pages/customer/Home';
 import CustomerHistory from './pages/customer/History';
 import CustomerBookings from './pages/customer/Bookings';
+import Search from './pages/customer/Search';
 import ServiceDetail from './pages/customer/ServiceDetail';
 import Tracking from './pages/customer/Tracking';
 import Chat from './pages/customer/Chat';
@@ -102,6 +103,7 @@ function AppRoutes() {
               <Routes location={window.location}>
                 {/* ── CUSTOMER ── */}
                 <Route path="/" element={renderPage(<CustomerHome />, 'customer-home')} />
+                <Route path="/search" element={renderPage(<Search />, 'search')} />
                 <Route path="/service/:id" element={renderPage(<ServiceDetail />, 'service-detail')} />
                 <Route path="/history" element={renderPage(<CustomerHistory />, 'customer-history')} />
                 <Route path="/bookings" element={renderPage(<CustomerBookings />, 'customer-bookings')} />

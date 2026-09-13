@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
-import { IconClipboard, IconUsers, IconTrendingUp, IconHelpCircle, IconMap, IconWallet, IconLayout, IconStar } from '../../components/icons';
+import { IconClipboard, IconUsers, IconTrendingUp, IconHelpCircle, IconMap, IconWallet, IconLayout, IconStar, IconSwap } from '../../components/icons';
+import { useAuth } from '../../context/AuthContext';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -11,6 +12,7 @@ const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, tran
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const currentUser = useAppStore(s => s.currentUser);
+  const { setShowAccountSwitcher } = useAuth();
   const [stats, setStats] = useState({ bookings: 48, workers: 24, revenue: 156400, pending: 6, onlineWorkers: 18 });
   const hour = new Date().getHours();
   const adminGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -48,9 +50,30 @@ export default function AdminDashboard() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-screen bg-[var(--va-cream-light)] pb-28">
       {/* Header */}
       <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(23,63,53,0.06)' }}>
-        <motion.p variants={item} initial="initial" animate="animate" className="text-xs font-bold tracking-widest text-[var(--va-text-faint)] uppercase mb-1">Operations Center</motion.p>
-        <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>{adminGreeting}, {adminName}</motion.h1>
-        <motion.p variants={item} initial="initial" animate="animate" className="text-sm text-[var(--va-text-muted)] mt-0.5">Real-time overview of Vaishnavi operations</motion.p>
+        <div className="flex items-start justify-between">
+          <div>
+            <motion.p variants={item} initial="initial" animate="animate" className="text-xs font-bold tracking-widest text-[var(--va-text-faint)] uppercase mb-1">Operations Center</motion.p>
+            <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>{adminGreeting}, {adminName}</motion.h1>
+            <motion.p variants={item} initial="initial" animate="animate" className="text-sm text-[var(--va-text-muted)] mt-0.5">Real-time overview of Vaishnavi operations</motion.p>
+          </div>
+          {/* Switch Profile Button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            onClick={() => setShowAccountSwitcher(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full active:scale-95 transition-transform mt-1"
+            style={{ background: 'rgba(23,63,53,0.07)' }}
+            data-testid="switch-profile-btn"
+          >
+            <motion.span
+              animate={{ rotate: [0, 180, 180] }}
+              transition={{ duration: 0.4, times: [0, 0.6, 1] }}
+            >
+              <IconSwap size={14} className="text-[#173F35]" />
+            </motion.span>
+            <span className="text-[11px] font-bold text-[#173F35]">Switch</span>
+          </motion.button>
+        </div>
       </div>
 
       {/* Stats grid */}
@@ -130,10 +153,10 @@ function BookingRow({ booking, index }: { booking: any; index: number }) {
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0" style={{ background: 'var(--va-cream)' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#173F35]">
-            {booking.serviceType === 'plumbing' && <><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}
-            {booking.serviceType === 'cooking' && <><path d="M12 2C8 2 5 5 5 9c0 4 3 7 7 9 4-2 7-5 7-9 0-4-3-7-7-7z" stroke="currentColor" strokeWidth="1.8"/><path d="M9 21h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></>}
-            {booking.serviceType === 'housekeeping' && <><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" strokeWidth="1.8"/></>}
-            {booking.serviceType === 'electrical' && <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" fill="none"/></>}
+            {booking.serviceType === 'plumbing' && <><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></>}\
+            {booking.serviceType === 'cooking' && <><path d="M12 2C8 2 5 5 5 9c0 4 3 7 7 9 4-2 7-5 7-9 0-4-3-7-7-7z" stroke="currentColor" strokeWidth="1.8"/><path d="M9 21h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></>}\
+            {booking.serviceType === 'housekeeping' && <><rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.8"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" strokeWidth="1.8"/></>}\
+            {booking.serviceType === 'electrical' && <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" fill="none"/></>}\
             {!['plumbing', 'cooking', 'housekeeping', 'electrical'].includes(booking.serviceType) && <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" fill="none"/>}
           </svg>
         </div>

@@ -2,10 +2,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../db/store';
 import { SERVICES, ACTIVE_OFFERS } from '../../db/seed';
 import { ServiceCard, BookingCard } from '../../components/Cards';
-import { IconSearch, IconMapPin, IconClock, IconBell } from '../../components/icons';
+import { IconSearch, IconMapPin, IconClock, IconBell, IconSwap } from '../../components/icons';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { db } from '../../db/database';
+import { useAuth } from '../../context/AuthContext';
 
 const container = { animate: { transition: { staggerChildren: 0.06 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -51,6 +52,7 @@ export default function CustomerHome() {
   const [activeBooking, setActiveBooking] = useState<any>(null);
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const navigate = useNavigate();
+  const { setShowAccountSwitcher } = useAuth();
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -98,7 +100,24 @@ export default function CustomerHome() {
               <span className="text-xs font-semibold text-[#8A9B8E]">Banjara Hills, Hyderabad</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Switch Profile Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => setShowAccountSwitcher(true)}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full active:scale-95 transition-transform"
+              style={{ background: 'rgba(23,63,53,0.07)' }}
+              data-testid="switch-profile-btn"
+            >
+              <motion.span
+                animate={{ rotate: [0, 180, 180] }}
+                transition={{ duration: 0.4, times: [0, 0.6, 1] }}
+              >
+                <IconSwap size={14} className="text-[#173F35]" />
+              </motion.span>
+              <span className="text-[11px] font-bold text-[#173F35]">Switch</span>
+            </motion.button>
             <button
               onClick={() => navigate('/notifications')}
               className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95"

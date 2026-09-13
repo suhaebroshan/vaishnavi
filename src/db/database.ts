@@ -34,7 +34,11 @@ db.version(1).stores({
   bookingEvents: 'id, bookingId, timestamp',
   reviews: 'id, workerId, bookingId',
   payments: 'id, bookingId',
-  messages: 'id, bookingId, senderId, createdAt',
+  messages: 'id, bookingId, senderId, receiverId, createdAt',
   notifications: 'id, userId, reading, createdAt',
   ads: 'id',
+});
+
+db.version(2).stores({
+  messages: 'id, bookingId, senderId, receiverId, createdAt',
 });
