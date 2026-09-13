@@ -1,0 +1,17 @@
+{
+  "name": "Vaishnavi",
+  "short_name": "Vaishnavi",
+  "description": "Premium home services marketplace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F0E7",
+  "theme_color": "#173F35",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
