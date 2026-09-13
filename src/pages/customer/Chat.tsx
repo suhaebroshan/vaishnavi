@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Phone } from 'lucide-react';
+import { IconArrowLeft, IconSend, IconPhone } from '../../components/icons';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
 
@@ -55,7 +55,7 @@ export default function Chat() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-[#FBF9F4]/90 backdrop-blur-md px-4 py-3 flex items-center gap-3 border-b border-[rgba(23,63,53,0.08)]">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-[#F5F0E7]">
-          <ArrowLeft size={20} className="text-[#173F35]" />
+          <IconArrowLeft size={20} className="text-[#173F35]" />
         </button>
         {worker && (
           <div className="flex items-center gap-3 flex-1">
@@ -69,7 +69,7 @@ export default function Chat() {
           </div>
         )}
         <button onClick={() => navigate('/call')} className="p-2 rounded-full hover:bg-[#F5F0E7]">
-          <Phone size={20} className="text-[#173F35]" />
+          <IconPhone size={20} className="text-[#173F35]" />
         </button>
       </div>
 
@@ -130,7 +130,7 @@ export default function Chat() {
           onClick={() => sendMessage(input)}
           className="w-11 h-11 rounded-full bg-[#173F35] flex items-center justify-center"
         >
-          <Send size={18} className="text-white" />
+          <IconSend size={18} className="text-white" />
         </motion.button>
       </div>
     </div>

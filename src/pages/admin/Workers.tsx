@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
-import { Star, Wifi, WifiOff, Briefcase } from 'lucide-react';
+import { IconStar, IconWifi, IconWifiOff } from '../../components/icons';
 import { StatusBadge } from '../../components/Cards';
 
 export default function AdminWorkers() {
@@ -57,17 +57,17 @@ export default function AdminWorkers() {
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-[#173F35]">{worker.name}</p>
                   {worker.status === 'online' ? (
-                    <span className="flex items-center gap-1 text-xs text-green-600 font-medium"><Wifi size={12} /> Online</span>
+                    <span className="flex items-center gap-1 text-xs text-green-600 font-medium"><IconWifi size={12} /> Online</span>
                   ) : worker.status === 'busy' ? (
                     <span className="text-xs text-[#C86F52] font-medium">Busy</span>
                   ) : (
-                    <span className="flex items-center gap-1 text-xs text-[#A8B9A5]"><WifiOff size={12} /> Offline</span>
+                    <span className="flex items-center gap-1 text-xs text-[#A8B9A5]"><IconWifiOff size={12} /> Offline</span>
                   )}
                 </div>
                 <p className="text-xs text-[#7A8B7E] capitalize">{worker.serviceType.replace('_', ' ')} Professional</p>
               </div>
               <div className="flex items-center gap-1">
-                <Star size={14} className="text-[#C86F52] fill-[#C86F52]" />
+                <IconStar size={14} className="text-[#C86F52]" filled />
                 <span className="text-sm font-bold text-[#173F35]">{worker.rating}</span>
               </div>
             </div>

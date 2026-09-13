@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
-import { Phone, MessageSquare } from 'lucide-react';
+import { IconPhone, IconChat } from '../../components/icons';
 
 export default function AdminMap() {
   const navigate = useNavigate();
@@ -141,8 +141,8 @@ function WorkerDetailPanel({ worker, onClose }: { worker: any; onClose: () => vo
           <div className="bg-[#F5F0E7] rounded-xl py-2"><p className="font-bold text-[#173F35] text-base">{worker.completionRate}%</p><p className="text-[#7A8B7E]">Complete</p></div>
         </div>
         <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#F5F0E7] text-[#173F35] text-sm font-semibold"><Phone size={16} /> Call</button>
-          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#173F35] text-white text-sm font-semibold"><MessageSquare size={16} /> Message</button>
+          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#F5F0E7] text-[#173F35] text-sm font-semibold"><IconPhone size={16} /> Call</button>
+          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#173F35] text-white text-sm font-semibold"><IconChat size={16} /> Message</button>
         </div>
       </div>
     </motion.div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
-import { Clock } from 'lucide-react';
+import { IconClock } from '../../components/icons';
 
 type Tab = 'unread' | 'read' | 'all';
 
@@ -83,7 +83,7 @@ export default function AdminNotifications() {
                 <p className="font-semibold text-sm text-[#173F35]">{n.title}</p>
                 <p className="text-xs text-[#7A8B7E] mt-0.5">{n.message}</p>
                 <p className="text-[10px] text-[#A8B9A5] mt-1 flex items-center gap-1">
-                  <Clock size={10} /> {new Date(n.createdAt).toLocaleString()}
+                  <IconClock size={10} /> {new Date(n.createdAt).toLocaleString()}
                 </p>
               </div>
               {!n.reading && <div className="w-2 h-2 rounded-full bg-[#C86F52] mt-2 shrink-0" />}

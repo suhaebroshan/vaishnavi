@@ -1,126 +1,129 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Vaishnavi - Core Booking Flow', () => {
+test.describe('Vaishnavi Housekeeping — Customer Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Wait for app to load and seed database
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle');
   });
 
-  test('customer can view home page with services', async ({ page }) => {
-    await expect(page.locator('h1')).toContainText(/Dashboard|Welcome/i).or(
-      await expect(page.locator('.font-bold.text-\\[#173F35\\]:not(.text-white)')).toBeVisible()
+  test('customer home shows greeting, search, and services', async ({ page }) => {
+    // Greeting should be visible
+    await expect(page.locator('text=Good morning, Suhaeb 👋')).toBeVisible({ timeout: 5000 }).or(
+      await expect(page.locator('text=Good afternoon, Suhaeb 👋')).toBeVisible({ timeout: 5000 }).or(
+        await expect(page.locator('text=Good evening, Suhaeb 👋')).toBeVisible({ timeout: 5000 })
+      )
     );
-    
-    // Services should be visible
-    const serviceCards = page.locator('[class*="min-w-\\[80px\\]"]').first();
-    await expect(serviceCards).toBeVisible();
-    
-    // Search bar should exist
-    const searchInput = page.getByPlaceholder(/What do you need help with/i);
-    await expect(searchInput).toBeVisible();
-    
-    // Bottom navigation should be visible
-    const bottomNav = page.locator('nav').filter({ has: page.getByRole('navigation') }).last();
-    // Check key nav items exist
-    await expect(page.getByRole('button', { name: /Home/i })).toBeVisible();
+    // Location chip
+    await expect(page.locator('text=Banjara Hills, Hyderabad')).toBeVisible();
+    // Search bar
+    await expect(page.getByPlaceholder(/What do you need help with/i)).toBeVisible();
+    // Services section
+    await expect(page.locator('text=Services')).toBeVisible();
+    // Bottom nav
+    await expect(page.getByRole('button', { name: 'Home' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Bookings' })).toBeVisible();
   });
 
-  test('account switcher cycles through roles', async ({ page }) => {
-    // Click profile button to open account switcher
-    const profileBtn = page.locator('button').filter({ hasText: /^\w$/ }).last();
-    await profileBtn.click();
-    
-    // Account switcher should appear
-    await expect(page.locator('[class*="rounded-t-\\[28px\\]"]')).toBeVisible();
-    
-    // Worker option should be visible
-    await expect(page.getByText('Vikram Singh')).toBeVisible();
-    
-    // Admin option should be visible
-    await expect(page.getByText('Vaishnavi Ops')).toBeVisible();
-    
-    // Close by clicking outside or on a row
-    await page.getByText('Suhaeb').click();
+  test('service cards are scrollable', async ({ page }) => {
+    await expect(page.locator('text=Housekeeping')).toBeVisible();
+    await expect(page.locator('text=Plumbing')).toBeVisible();
+    await expect(page.locator('text=Cooking')).toBeVisible();
+    // Horizontal scroll works
+    const scrollContainer = page.locator('.overflow-x-auto').first();
+    await expect(scrollContainer).toBeVisible();
   });
 
-  test('keyboard shortcuts switch roles', async ({ page }) => {
-    // Press Alt+2 to switch to worker
-    await page.keyboard.press('Alt+2');
-    await page.waitForTimeout(1000);
-    
-    // Should now see worker dashboard
-    await expect(page.locator('h1')).toContainText(/Dashboard/i);
-    
-    // Press Alt+1 to switch back to customer
-    await page.keyboard.press('Alt+1');
-    await page.waitForTimeout(1000);
-    
-    // Should see customer home
+  test('search page shows service grid', async ({ page }) => {
+    await page.getByPlaceholder(/What do you need help with/i).click();
+    await expect(page.getByPlaceholder(/Search services/i)).toBeVisible();
+    await expect(page.locator('text=All Services')).toBeVisible();
+    // Grid of service cards
+    await expect(page.locator('.rounded-2xl').filter({ has: page.locator('text=Plumbing') })).toBeVisible();
   });
 
-  test('customer can view services list', async ({ page }) => {
-    // Click search to go to services
-    const searchInput = page.getByPlaceholder(/What do you need help with/i);
-    await searchInput.click();
-    
-    // Should navigate to search/services page
-    await expect(page.locator('input[placeholder*="Search"]')).toBeVisible().or(
-      await expect(page.getByText(/All Services/i)).toBeVisible()
-    );
-  });
-
-  test('booking detail shows status timeline', async ({ page }) => {
-    // Navigate to bookings
-    await page.getByRole('navigation').getByRole('button', { name: /Bookings/i }).click();
+  test('account switcher opens and lists all roles', async ({ page }) => {
+    // Click profile button (top-right avatar)
+    await page.locator('button').filter({ has: page.locator('text=S') }).last().click();
     await page.waitForTimeout(500);
-    
-    // Should show booking list or empty state
-    const bookingsPage = page.locator('main, [class*="min-h-screen"]').first();
-    await expect(bookingsPage).toBeVisible();
+    // Switch Account panel should appear
+    await expect(page.locator('text=Switch Account')).toBeVisible();
+    // All roles listed
+    await expect(page.locator('text=Suhaeb')).toBeVisible();
+    await expect(page.locator('text=Vikram Singh')).toBeVisible();
+    await expect(page.locator('text=Priya Sharma')).toBeVisible();
+    await expect(page.locator('text=Vaishnavi Ops')).toBeVisible();
+    // Close by clicking outside
+    await page.locator('text=Switch Account').click({ position: { x: 0, y: 0 } });
   });
 });
 
-test.describe('Vaishnavi - Worker Dashboard', () => {
+test.describe('Vaishnavi — Worker Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(2000);
-    // Switch to worker role
+    await page.waitForLoadState('networkidle');
+    // Switch to worker via keyboard shortcut
     await page.keyboard.press('Alt+2');
     await page.waitForTimeout(1500);
   });
 
-  test('worker sees earnings and pending requests', async ({ page }) => {
-    // Should see dashboard with stats
-    await expect(page.locator('h1')).toContainText(/Dashboard/i);
-    
-    // Stats cards should be visible
-    const statsCards = page.locator('[class*="bg-white"].rounded-2xl').filter({ has: page.locator('p.font-bold') });
-    await expect(statsCards).toHaveCountGreaterThan(0);
+  test('worker sees dashboard with stats', async ({ page }) => {
+    await expect(page.locator('text=Dashboard')).toBeVisible();
+    await expect(page.locator('text=Today\'s Earnings')).toBeVisible();
+    await expect(page.locator('text=Rating')).toBeVisible();
+    await expect(page.locator('text=Pending')).toBeVisible();
   });
 
-  test('worker can access jobs and requests', async ({ page }) => {
-    // Jobs button should be in bottom nav
-    await expect(page.getByRole('navigation').getByRole('button', { name: /Jobs/i })).toBeVisible();
+  test('worker can see today schedule', async ({ page }) => {
+    await expect(page.locator('text=Today\'s Schedule')).toBeVisible();
+    await expect(page.locator('text=Bathroom Repair')).toBeVisible();
   });
 });
 
-test.describe('Vaishnavi - Admin Dashboard', () => {
+test.describe('Vaishnavi — Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForTimeout(2000);
-    // Switch to admin role
+    await page.waitForLoadState('networkidle');
     await page.keyboard.press('Alt+3');
     await page.waitForTimeout(1500);
   });
 
-  test('admin sees operations dashboard', async ({ page }) => {
-    await expect(page.locator('h1')).toContainText(/Operations Dashboard/i).or(
-      await expect(page.locator('h1')).toContainText(/Dashboard/i)
+  test('admin sees operations center', async ({ page }) => {
+    await expect(page.locator('text=Operations Center')).toBeVisible();
+    await expect(page.locator('text=Good morning, Santosh')).toBeVisible().or(
+      await expect(page.locator('text=Good afternoon, Santosh')).toBeVisible()
     );
-    
-    // Quick action buttons should exist
-    await expect(page.getByText(/Live Map/i)).toBeVisible();
-    await expect(page.getByText(/All Bookings/i)).toBeVisible();
+    await expect(page.locator('text=Active Bookings')).toBeVisible();
+    await expect(page.locator('text=Workers Online')).toBeVisible();
+    await expect(page.locator('text=Today\'s Revenue')).toBeVisible();
+    await expect(page.locator('text=Live Map')).toBeVisible();
+    await expect(page.locator('text=All Bookings')).toBeVisible();
+  });
+});
+
+test.describe('Vaishnavi — Tracking & Chat', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('chat page renders with message bubbles', async ({ page }) => {
+    await page.getByRole('navigation').getByRole('button', { name: 'Chat' }).click();
+    await page.waitForTimeout(800);
+    // Quick replies should be visible
+    await expect(page.locator('text=I\'m at the entrance')).toBeVisible();
+    await expect(page.locator('text=How far are you?')).toBeVisible();
+    // Message input
+    await expect(page.getByPlaceholder(/Type a message/i)).toBeVisible();
+  });
+
+  test('call screen shows caller info', async ({ page }) => {
+    await page.getByRole('navigation').getByRole('button', { name: 'Chat' }).click();
+    await page.waitForTimeout(500);
+    await page.locator('button').filter({ has: page.locator('svg') }).nth(0).click();
+    await page.waitForTimeout(500);
+    // Should navigate to call or show call-related UI
+    await expect(page.locator('text=Vikram Singh')).toBeVisible().or(
+      await expect(page.locator('.min-h-screen.bg-\\[#173F35\\]')).toBeVisible()
+    );
   });
 });

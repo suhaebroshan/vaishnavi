@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Clock, Phone, MessageSquare, Star } from 'lucide-react';
+import { IconArrowLeft, IconMapPin, IconCalendar, IconClock, IconPhone, IconChat as IconMessageSquare, IconStar } from '../../components/icons';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
 import { SERVICES } from '../../db/seed';
@@ -104,7 +104,7 @@ export default function BookingDetail() {
               <div className="flex justify-center gap-2 mb-6">
                 {[1, 2, 3, 4, 5].map(n => (
                   <button key={n} onClick={() => setRating(n)} className="transition-transform hover:scale-110 active:scale-95">
-                    <Star size={36} className={`${n <= rating ? 'text-[#C86F52] fill-[#C86F52]' : 'text-[#D4CFC4]'}`} />
+                    <IconStar size={36} className={`${n <= rating ? 'text-[#C86F52]' : 'text-[#D4CFC4]'}`} filled={n <= rating} />
                   </button>
                 ))}
               </div>
@@ -133,7 +133,7 @@ export default function BookingDetail() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-[#FBF9F4]/90 backdrop-blur-md px-5 py-3 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-[#F5F0E7]">
-          <ArrowLeft size={20} className="text-[#173F35]" />
+          <IconArrowLeft size={20} className="text-[#173F35]" />
         </button>
         <h1 className="font-bold text-[#173F35] text-base">Booking Details</h1>
         <span className="ml-auto text-xs font-mono text-[#7A8B7E]">{booking.id}</span>
@@ -191,15 +191,15 @@ export default function BookingDetail() {
               <div className="flex-1">
                 <p className="font-medium text-sm text-[#173F35]">{worker.name}</p>
                 <div className="flex items-center gap-1">
-                  <Star size={12} className="text-[#C86F52] fill-[#C86F52]" />
+                  <IconStar size={12} className="text-[#C86F52]" filled />
                   <span className="text-xs text-[#7A8B7E]">{worker.rating} · {worker.totalJobs} jobs</span>
                 </div>
               </div>
               <button onClick={() => navigate('/chat')} className="p-2 rounded-full bg-[#F5F0E7] hover:bg-[#EDE8DD]">
-                <MessageSquare size={16} className="text-[#173F35]" />
+                <IconMessageSquare size={16} className="text-[#173F35]" />
               </button>
               <button onClick={() => navigate('/call')} className="p-2 rounded-full bg-[#F5F0E7] hover:bg-[#EDE8DD]">
-                <Phone size={16} className="text-[#173F35]" />
+                <IconPhone size={16} className="text-[#173F35]" />
               </button>
             </div>
           )}
@@ -207,10 +207,10 @@ export default function BookingDetail() {
 
         {/* Details */}
         <div className="bg-white rounded-2xl border border-[rgba(23,63,53,0.08)] p-4 space-y-3">
-          <DetailRow icon={<Calendar size={16} />} label="Date" value={booking.date} />
-          <DetailRow icon={<Clock size={16} />} label="Time" value={booking.time} />
+          <DetailRow icon={<IconCalendar size={16} />} label="Date" value={booking.date} />
+          <DetailRow icon={<IconClock size={16} />} label="Time" value={booking.time} />
           {address && (
-            <DetailRow icon={<MapPin size={16} />} label="Address" value={`${address.line1}, ${address.city}`} />
+            <DetailRow icon={<IconMapPin size={16} />} label="Address" value={`${address.line1}, ${address.city}`} />
           )}
           <div className="pt-3 border-t border-[rgba(23,63,53,0.06)] flex justify-between">
             <span className="text-[#7A8B7E]">Total</span>
@@ -220,8 +220,8 @@ export default function BookingDetail() {
 
         {/* Action buttons based on status */}
         {(booking.status === 'on_the_way' || booking.status === 'nearby') && (
-          <button onClick={() => navigate('/tracking')} className="w-full vaishnavi-btn vaishnavi-btn-primary flex items-center gap-2">
-            <MapPin size={18} /> Track Professional
+          <button onClick={() => navigate('/tracking')} className="w-full btn-primary flex items-center gap-2">
+            <IconMapPin size={18} /> Track Professional
           </button>
         )}
 

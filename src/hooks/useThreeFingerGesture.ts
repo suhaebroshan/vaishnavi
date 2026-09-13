@@ -13,8 +13,9 @@ function handleTouchEnd(e: TouchEvent) {
   const diff = lastTouchY - e.changedTouches[0].clientY;
   if (Math.abs(diff) < 60) return;
   if (e.changedTouches.length === 3) {
-    const roleList = Object.keys(useAppStore.getState().currentRole || {});
-    const idx = roleList.indexOf(useAppStore.getState().currentRole || '');
+    const currentRole = useAppStore.getState().currentRole;
+    const roleList: ('customer' | 'worker' | 'admin')[] = ['customer', 'worker', 'admin'];
+    const idx = roleList.indexOf(currentRole || 'customer');
     const nextIdx = diff > 0 ? (idx + 1) % 3 : (idx + 2) % 3;
     useAppStore.getState().switchToRole(GESTURE_CYCLE[nextIdx]);
   }

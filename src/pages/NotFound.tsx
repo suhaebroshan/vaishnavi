@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { IconArrowLeft } from "../components/icons";
 
 const NotFound = () => {
   const location = useLocation();
@@ -21,7 +21,7 @@ const NotFound = () => {
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#173F35] text-white text-sm font-semibold hover:bg-[#102F28] transition-colors"
         >
-          <ArrowLeft size={16} /> Go Back
+          <IconArrowLeft size={16} /> Go Back
         </button>
       </div>
     </div>

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
 import { StatusBadge } from '../../components/Cards';
-import { MapPin, Clock, Calendar } from 'lucide-react';
+import { IconMapPin, IconClock, IconCalendar } from '../../components/icons';
 
 export default function WorkerRequests() {
   const navigate = useNavigate();
@@ -99,9 +99,9 @@ export default function WorkerRequests() {
               </div>
 
               <div className="space-y-2 mb-4">
-                <Detail icon={<Calendar size={14} />} label="Date" value={req.date} />
-                <Detail icon={<Clock size={14} />} label="Time" value={req.time} />
-                <Detail icon={<MapPin size={14} />} label="Location" value="Banjara Hills, Hyderabad" />
+                <Detail icon={<IconCalendar size={14} />} label="Date" value={req.date} />
+                <Detail icon={<IconClock size={14} />} label="Time" value={req.time} />
+                <Detail icon={<IconMapPin size={14} />} label="Location" value="Banjara Hills, Hyderabad" />
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-[rgba(23,63,53,0.06)]">

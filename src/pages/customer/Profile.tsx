@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, CreditCard, MapPin, LogOut, HelpCircle, Phone, Star, ShoppingBag, Heart } from 'lucide-react';
+import { IconBell, IconCreditCard, IconMapPin, IconLogOut, IconHelpCircle, IconPhone, IconStar, IconHeartOutline, IconCalendar, IconUsers } from '../../components/icons';
 import { useAppStore } from '../../db/store';
 
 export default function Profile() {
@@ -16,7 +16,7 @@ export default function Profile() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-white text-lg font-bold">Profile</h1>
           <button onClick={() => navigate('/notifications')} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-            <Bell size={18} className="text-white" />
+            <IconBell size={18} className="text-white" />
           </button>
         </div>
         <div className="flex items-center gap-4">
@@ -37,16 +37,16 @@ export default function Profile() {
       </div>
 
       <div className="mx-5 mt-5 space-y-2">
-        <MenuItem icon={<ShoppingBag size={18} />} label="My Bookings" onPress={() => navigate('/bookings')} />
-        <MenuItem icon={<MapPin size={18} />} label="Saved Addresses" onPress={() => {}} />
-        <MenuItem icon={<CreditCard size={18} />} label="Payment Methods" onPress={() => {}} />
-        <MenuItem icon={<Heart size={18} />} label="Favorites" onPress={() => {}} />
-        <MenuItem icon={<Bell size={18} />} label="Notifications" onPress={() => navigate('/notifications')} />
+        <MenuItem icon={<IconCalendar size={18} />} label="My Bookings" onPress={() => navigate('/bookings')} />
+        <MenuItem icon={<IconMapPin size={18} />} label="Saved Addresses" onPress={() => {}} />
+        <MenuItem icon={<IconCreditCard size={18} />} label="Payment Methods" onPress={() => {}} />
+        <MenuItem icon={<IconHeartOutline size={18} />} label="Favorites" onPress={() => {}} />
+        <MenuItem icon={<IconBell size={18} />} label="Notifications" onPress={() => navigate('/notifications')} />
       </div>
 
       <div className="mx-5 mt-3 space-y-2">
-        <MenuItem icon={<HelpCircle size={18} />} label="Help & Support" onPress={() => {}} />
-        <MenuItem icon={<Phone size={18} />} label="Contact Vaishnavi" onPress={() => window.open('tel:+917569728464')} />
+        <MenuItem icon={<IconHelpCircle size={18} />} label="Help & Support" onPress={() => {}} />
+        <MenuItem icon={<IconPhone size={18} />} label="Contact Vaishnavi" onPress={() => window.open('tel:+917569728464')} />
       </div>
 
       <div className="mx-5 mt-6">
@@ -70,7 +70,7 @@ export default function Profile() {
 
       <div className="mx-5 mt-6">
         <button onClick={() => navigate('/')} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-colors">
-          <LogOut size={18} />
+          <IconLogOut size={18} />
           <span className="font-medium text-sm">Sign Out</span>
         </button>
       </div>

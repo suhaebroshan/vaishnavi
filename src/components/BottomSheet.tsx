@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { IconX } from './icons';
 
 export default function BottomSheet({
   open, onClose, children, height = '80%',
@@ -33,7 +33,7 @@ export default function BottomSheet({
             </div>
             <div className="px-6 pb-8 overflow-y-auto" style={{ height: 'calc(100% - 48px)' }}>
               <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-full hover:bg-[#F5F0E7]">
-                <X size={20} className="text-[#7A8B7E]" />
+                <IconX size={20} className="text-[#7A8B7E]" />
               </button>
               {children}
             </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PhoneOff, Mic, MicOff, Volume2 } from 'lucide-react';
+import { IconPhone, IconMic, IconMicOff, IconSpeaker, IconLogOut, IconX, IconVolume2, IconPhoneOff } from '../../components/icons';
 
 export default function CallScreen() {
   const navigate = useNavigate();
@@ -47,13 +47,13 @@ export default function CallScreen() {
       <div className="grid grid-cols-3 gap-8 mb-12">
         <button onClick={() => setMuted(!muted)} className="flex flex-col items-center gap-2">
           <div className={`w-14 h-14 rounded-full flex items-center justify-center ${muted ? 'bg-white text-[#173F35]' : 'bg-white/10 text-white'}`}>
-            {muted ? <MicOff size={22} /> : <Mic size={22} />}
+            {muted ? <IconMicOff size={22} /> : <IconMic size={22} />}
           </div>
           <span className="text-white/60 text-xs">Mute</span>
         </button>
         <button onClick={() => setSpeaker(!speaker)} className="flex flex-col items-center gap-2">
           <div className={`w-14 h-14 rounded-full flex items-center justify-center ${speaker ? 'bg-white text-[#173F35]' : 'bg-white/10 text-white'}`}>
-            <Volume2 size={22} />
+            <IconVolume2 size={22} />
           </div>
           <span className="text-white/60 text-xs">Speaker</span>
         </button>
@@ -70,7 +70,7 @@ export default function CallScreen() {
         onClick={() => setEnded(true)}
         className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center mb-6"
       >
-        <PhoneOff size={28} className="text-white" />
+        <IconPhoneOff size={28} className="text-white" />
       </button>
 
       {ended && (

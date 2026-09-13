@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { SERVICES } from '../../db/seed';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Search as SearchIcon } from 'lucide-react';
+import { IconArrowLeft as IconBack, IconSearch } from '../../components/icons';
 import { useState } from 'react';
 
 export default function Search() {
@@ -17,10 +17,10 @@ export default function Search() {
     <div className="min-h-screen bg-[#FBF9F4] pb-24">
       <div className="sticky top-0 z-30 bg-[#FBF9F4]/90 backdrop-blur-md px-5 py-3 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-[#F5F0E7]">
-          <ArrowLeft size={20} className="text-[#173F35]" />
+          <IconBack size={20} className="text-[#173F35]" />
         </button>
         <div className="flex-1 relative">
-          <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A8B9A5]" />
+          <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A8B9A5]" />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}

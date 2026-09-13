@@ -40,7 +40,7 @@ const queryClient = new QueryClient();
 // Services registry for cross-page access
 (window as any).__services = [
   { id: 'housekeeping', name: 'Housekeeping', description: 'Thorough home cleaning by trained professionals.', icon: '🧹', color: '#173F35', options: [{ id: 'full_home', label: 'Full Home Cleaning', priceRange: [999, 1899] }, { id: 'kitchen', label: 'Kitchen Deep Clean', priceRange: [599, 999] }, { id: 'bathroom', label: 'Bathroom Cleaning', priceRange: [399, 699] }, { id: 'laundry', label: 'Laundry & Ironing', priceRange: [299, 599] }, { id: 'general', label: 'General Household Help', priceRange: [499, 899] }] },
-  { id: 'cooking', name: 'Cooking', description: 'Home-cooked meals by experienced chefs.', icon: '👩‍🍳', color: '#C86F52', options: [{ id: 'breakfast', label: 'Breakfast Prep', priceRange: [300, 500] }, { id: 'lunch_dinner', label: 'Lunch / Dinner', priceRange: [400, 700] }, { id: 'special_meal', label: 'Special Occasion Meal', priceRange: [800, 1500] }, { id: 'dietary', label: 'Diet-Specific Cooking', priceRange: [500, 900] }] },
+  { id: 'cooking', name: 'Cooking', description: 'Home-cooked meals by experienced chefs.', icon: '👩🍳', color: '#C86F52', options: [{ id: 'breakfast', label: 'Breakfast Prep', priceRange: [300, 500] }, { id: 'lunch_dinner', label: 'Lunch / Dinner', priceRange: [400, 700] }, { id: 'special_meal', label: 'Special Occasion Meal', priceRange: [800, 1500] }, { id: 'dietary', label: 'Diet-Specific Cooking', priceRange: [500, 900] }] },
   { id: 'plumbing', name: 'Plumbing', description: 'Reliable plumbing support for a hassle-free home.', icon: '🔧', color: '#173F35', options: [{ id: 'leak_repair', label: 'Leak Repair', priceRange: [400, 800] }, { id: 'pipe_repair', label: 'Pipe Repair', priceRange: [500, 1000] }, { id: 'bathroom_issue', label: 'Bathroom Issue', priceRange: [500, 1200] }, { id: 'kitchen_issue', label: 'Kitchen Issue', priceRange: [400, 900] }, { id: 'installation', label: 'Installation', priceRange: [600, 1500] }, { id: 'general_maintenance', label: 'General Maintenance', priceRange: [350, 700] }] },
   { id: 'electrical', name: 'Electrical', description: 'Safe electrical fixes and installations.', icon: '⚡', color: '#C86F52', options: [{ id: 'wiring', label: 'Wiring Work', priceRange: [500, 1200] }, { id: 'fan_light', label: 'Fan / Light Fix', priceRange: [300, 600] }, { id: 'switchboard', label: 'Switchboard Repair', priceRange: [300, 500] }, { id: 'outlet_install', label: 'Outlet Installation', priceRange: [400, 800] }, { id: 'general_electrical', label: 'General Electrical', priceRange: [350, 700] }] },
   { id: 'security', name: 'Security', description: 'Trusted security personnel for your home.', icon: '🛡️', color: '#173F35', options: [{ id: 'day_guard', label: 'Day Shift Guard', priceRange: [800, 1500] }, { id: 'night_guard', label: 'Night Shift Guard', priceRange: [900, 1800] }, { id: 'cctv', label: 'CCTV Monitoring', priceRange: [1000, 2500] }] },
@@ -58,21 +58,13 @@ function AppRoutes() {
   useThreeFingerGesture();
   useKeyboardSwitch();
 
-  // On mount, if no user, load default customer
   if (!role && !user) {
-    import('./db/store').then(({ useAppStore }) => {
-      useAppStore.getState().switchToRole('customer').then(() => {
-        setCurrentUser(user);
-      });
-    }).catch(console.error);
     return (
-      <div className="min-h-screen bg-[#FBF9F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#173F35] flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">V</span>
-          </div>
-          <p className="text-[#7A8B7E] text-sm">Loading Vaishnavi...</p>
+      <div className="min-h-screen bg-[#FBF9F4] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(145deg, #1E4D3F 0%, #102F28 100%)', boxShadow: '0 8px 30px rgba(23,63,53,0.35)' }}>
+          <span className="text-white text-2xl font-extrabold">V</span>
         </div>
+        <p className="text-[#7A8B7E] text-sm font-medium">Loading Vaishnavi…</p>
       </div>
     );
   }
@@ -82,7 +74,7 @@ function AppRoutes() {
   const isAdmin = role === 'admin';
 
   return (
-    <div className={isAdmin ? 'bg-[#FBF9F4]' : 'max-w-[430px] mx-auto bg-[#FBF9F4] shadow-2xl min-h-screen relative'}>
+    <div className={isAdmin ? 'max-w-none mx-auto bg-[#FBF9F4] min-h-screen' : 'max-w-[430px] mx-auto bg-[#FBF9F4] shadow-2xl min-h-screen relative'} style={{ boxShadow: isAdmin ? 'none' : '0 0 60px rgba(23,63,53,0.12)' }}>
       <DBProvider>
         <AuthProvider>
           {isCustomer && <BottomNav />}
@@ -90,7 +82,7 @@ function AppRoutes() {
           {isAdmin && <AdminNav />}
 
           <Routes>
-            {/* ── CUSTOMER ROUTES ── */}
+            {/* ── CUSTOMER ── */}
             <Route path="/" element={<CustomerHome />} />
             <Route path="/service/:id" element={<ServiceDetail />} />
             <Route path="/search" element={<Search />} />
@@ -101,9 +93,8 @@ function AppRoutes() {
             <Route path="/booking/:id" element={<BookingDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/services" element={<Navigate to="/" replace />} />
 
-            {/* ── WORKER ROUTES ── */}
+            {/* ── WORKER ── */}
             <Route path="/worker/home" element={<WorkerHome />} />
             <Route path="/worker/requests" element={<WorkerRequests />} />
             <Route path="/worker/jobs" element={<WorkerJobs />} />
@@ -112,15 +103,17 @@ function AppRoutes() {
             <Route path="/worker/chat" element={<Chat />} />
             <Route path="/worker/call" element={<CallScreen />} />
 
-            {/* ── ADMIN ROUTES ── */}
+            {/* ── ADMIN ── */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/map" element={<AdminMap />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
             <Route path="/admin/revenue" element={<AdminRevenue />} />
             <Route path="/admin/workers" element={<AdminWorkers />} />
             <Route path="/admin/notifications" element={<AdminNotifications />} />
+            <Route path="/admin/more" element={<AdminDashboard />} />
 
             {/* ── FALLBACKS ── */}
+            <Route path="/landing" element={<Landing />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

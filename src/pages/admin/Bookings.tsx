@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { StatusBadge } from '../../components/Cards';
-import { MapPin, Clock, User, Wrench } from 'lucide-react';
+import { IconMapPin, IconClock, IconUser, IconWrench } from '../../components/icons';
 
 export default function AdminBookings() {
   const navigate = useNavigate();
@@ -66,10 +66,10 @@ function AdminBookingCard({ booking }: { booking: any }) {
         <StatusBadge status={booking.status} />
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="flex items-center gap-1 text-[#7A8B7E]"><User size={12} /> {booking.customer?.name || '—'}</div>
-        <div className="flex items-center gap-1 text-[#7A8B7E]"><Wrench size={12} /> {booking.worker?.name || 'Unassigned'}</div>
-        <div className="flex items-center gap-1 text-[#7A8B7E]"><MapPin size={12} /> Banjara Hills</div>
-        <div className="flex items-center gap-1 text-[#7A8B7E]"><Clock size={12} /> {booking.date} {booking.time}</div>
+        <div className="flex items-center gap-1 text-[#7A8B7E]"><IconUser size={12} /> {booking.customer?.name || '—'}</div>
+        <div className="flex items-center gap-1 text-[#7A8B7E]"><IconWrench size={12} /> {booking.worker?.name || 'Unassigned'}</div>
+        <div className="flex items-center gap-1 text-[#7A8B7E]"><IconMapPin size={12} /> {booking.addressId}</div>
+        <div className="flex items-center gap-1 text-[#7A8B7E]"><IconClock size={12} /> {booking.date} {booking.time}</div>
       </div>
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(23,63,53,0.06)]">
         <span className="font-bold text-sm text-[#173F35]">₹{booking.estimatedPrice}</span>

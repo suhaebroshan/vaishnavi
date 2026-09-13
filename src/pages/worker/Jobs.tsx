@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
 import { StatusBadge } from '../../components/Cards';
-import { MapPin, Clock, Navigation } from 'lucide-react';
+import { IconMapPin, IconClock, IconNav } from '../../components/icons';
 
 type Tab = 'upcoming' | 'active' | 'completed';
 
@@ -108,8 +108,8 @@ function JobCard({ booking, onAction }: { booking: any; onAction: () => void }) 
       </div>
       <p className="font-semibold text-[#173F35]">{booking.customer?.name || 'Customer'}</p>
       <div className="flex items-center gap-4 mt-2 text-xs text-[#7A8B7E]">
-        <span className="flex items-center gap-1"><MapPin size={12} /> Banjara Hills</span>
-        <span className="flex items-center gap-1"><Clock size={12} /> {booking.time}</span>
+        <span className="flex items-center gap-1"><IconMapPin size={12} /> Banjara Hills</span>
+        <span className="flex items-center gap-1"><IconClock size={12} /> {booking.time}</span>
       </div>
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(23,63,53,0.06)]">
         <span className="font-bold text-[#173F35]">₹{booking.estimatedPrice}</span>
