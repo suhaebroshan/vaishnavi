@@ -17,8 +17,9 @@ export default function WorkerEarnings() {
       const workerId = user.id;
       const allBookings = await db.bookings.where('workerId').equals(workerId).toArray();
       const completedBookings = allBookings.filter((b: any) => ['completed', 'paid', 'reviewed'].includes(b.status));
-      const allPayments = await db.payments.where('status').equals('completed').toArray();
+      const allPayments = await db.payments.toArray();
       const workerPayments = allPayments.filter((p: any) =>
+        p.status === 'completed' &&
         completedBookings.some((b: any) => b.id === p.bookingId)
       );
       const totalJobs = completedBookings.length;
