@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useDatabaseInit } from './db/use-db-init';
 import { DBProvider } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
@@ -49,73 +50,92 @@ const queryClient = new QueryClient();
   { id: 'home_support', name: 'Home Support', description: 'General household assistance for daily tasks.', icon: '✨', color: '#A8B9A5', options: [{ id: 'errands', label: 'Errands & Shopping', priceRange: [300, 600] }, { id: 'organization', label: 'Home Organization', priceRange: [500, 1000] }, { id: 'garden', label: 'Garden & Balcony', priceRange: [400, 800] }, { id: 'appliance', label: 'Appliance Setup', priceRange: [300, 700] }] },
 ];
 
+function PageTransition({ children, key }: { children: React.ReactNode; key?: string }) {
+  return (
+    <motion.div
+      key={key}
+      initial={{ opacity: 0, x: 12 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -12 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute inset-0"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function AppRoutes() {
   const role = useAppStore(s => s.currentRole);
   const user = useAppStore(s => s.currentUser);
-  const { setCurrentUser } = useAppStore.getState();
 
   useDatabaseInit();
   useThreeFingerGesture();
   useKeyboardSwitch();
 
   if (!role && !user) {
-    return (
-      <div className="min-h-screen bg-[#FBF9F4] flex flex-col items-center justify-center gap-4">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(145deg, #1E4D3F 0%, #102F28 100%)', boxShadow: '0 8px 30px rgba(23,63,53,0.35)' }}>
-          <span className="text-white text-2xl font-extrabold">V</span>
-        </div>
-        <p className="text-[#7A8B7E] text-sm font-medium">Loading Vaishnavi…</p>
-      </div>
-    );
+    return <Landing />;
   }
 
   const isCustomer = role === 'customer';
   const isWorker = role === 'worker';
   const isAdmin = role === 'admin';
 
+  const containerStyle = isAdmin
+    ? { boxShadow: 'none' as const }
+    : { boxShadow: '0 0 60px rgba(23,63,53,0.12)' as const };
+
+  const renderPage = (element: React.ReactNode, pathKey: string) => (
+    <PageTransition key={pathKey}>{element}</PageTransition>
+  );
+
   return (
-    <div className={isAdmin ? 'max-w-none mx-auto bg-[#FBF9F4] min-h-screen' : 'max-w-[430px] mx-auto bg-[#FBF9F4] shadow-2xl min-h-screen relative'} style={{ boxShadow: isAdmin ? 'none' : '0 0 60px rgba(23,63,53,0.12)' }}>
+    <div className="max-w-[430px] mx-auto bg-[var(--va-cream-light)] min-h-screen relative" style={containerStyle}>
       <DBProvider>
         <AuthProvider>
           {isCustomer && <BottomNav />}
           {isWorker && <BottomNav />}
           {isAdmin && <AdminNav />}
 
-          <Routes>
-            {/* ── CUSTOMER ── */}
-            <Route path="/" element={<CustomerHome />} />
-            <Route path="/service/:id" element={<ServiceDetail />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/tracking" element={<Tracking />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/call" element={<CallScreen />} />
-            <Route path="/bookings" element={<Bookings />} />
-            <Route path="/booking/:id" element={<BookingDetail />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<Notifications />} />
+          <div className="relative min-h-screen" style={{ paddingBottom: isAdmin || isWorker ? '80px' : '80px' }}>
+            <AnimatePresence mode="wait">
+              <Routes location={window.location}>
+                {/* ── CUSTOMER ── */}
+                <Route path="/" element={renderPage(<CustomerHome />, 'customer-home')} />
+                <Route path="/service/:id" element={renderPage(<ServiceDetail />, 'service-detail')} />
+                <Route path="/search" element={renderPage(<Search />, 'search')} />
+                <Route path="/tracking" element={renderPage(<Tracking />, 'tracking')} />
+                <Route path="/chat" element={renderPage(<Chat />, 'chat')} />
+                <Route path="/call" element={renderPage(<CallScreen />, 'call')} />
+                <Route path="/bookings" element={renderPage(<Bookings />, 'bookings')} />
+                <Route path="/booking/:id" element={renderPage(<BookingDetail />, 'booking-detail')} />
+                <Route path="/profile" element={renderPage(<Profile />, 'profile')} />
+                <Route path="/notifications" element={renderPage(<Notifications />, 'notifications')} />
 
-            {/* ── WORKER ── */}
-            <Route path="/worker/home" element={<WorkerHome />} />
-            <Route path="/worker/requests" element={<WorkerRequests />} />
-            <Route path="/worker/jobs" element={<WorkerJobs />} />
-            <Route path="/worker/earnings" element={<WorkerEarnings />} />
-            <Route path="/worker/profile" element={<WorkerProfile />} />
-            <Route path="/worker/chat" element={<Chat />} />
-            <Route path="/worker/call" element={<CallScreen />} />
+                {/* ── WORKER ── */}
+                <Route path="/worker/home" element={renderPage(<WorkerHome />, 'worker-home')} />
+                <Route path="/worker/requests" element={renderPage(<WorkerRequests />, 'worker-requests')} />
+                <Route path="/worker/jobs" element={renderPage(<WorkerJobs />, 'worker-jobs')} />
+                <Route path="/worker/earnings" element={renderPage(<WorkerEarnings />, 'worker-earnings')} />
+                <Route path="/worker/profile" element={renderPage(<WorkerProfile />, 'worker-profile')} />
+                <Route path="/worker/chat" element={renderPage(<Chat />, 'worker-chat')} />
+                <Route path="/worker/call" element={renderPage(<CallScreen />, 'worker-call')} />
 
-            {/* ── ADMIN ── */}
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/map" element={<AdminMap />} />
-            <Route path="/admin/bookings" element={<AdminBookings />} />
-            <Route path="/admin/revenue" element={<AdminRevenue />} />
-            <Route path="/admin/workers" element={<AdminWorkers />} />
-            <Route path="/admin/notifications" element={<AdminNotifications />} />
-            <Route path="/admin/more" element={<AdminDashboard />} />
+                {/* ── ADMIN ── */}
+                <Route path="/admin/dashboard" element={renderPage(<AdminDashboard />, 'admin-dashboard')} />
+                <Route path="/admin/map" element={renderPage(<AdminMap />, 'admin-map')} />
+                <Route path="/admin/bookings" element={renderPage(<AdminBookings />, 'admin-bookings')} />
+                <Route path="/admin/revenue" element={renderPage(<AdminRevenue />, 'admin-revenue')} />
+                <Route path="/admin/workers" element={renderPage(<AdminWorkers />, 'admin-workers')} />
+                <Route path="/admin/notifications" element={renderPage(<AdminNotifications />, 'admin-notifications')} />
+                <Route path="/admin/more" element={renderPage(<AdminDashboard />, 'admin-more')} />
 
-            {/* ── FALLBACKS ── */}
-            <Route path="/landing" element={<Landing />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+                {/* ── FALLBACKS ── */}
+                <Route path="/landing" element={<Landing />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </div>
         </AuthProvider>
       </DBProvider>
     </div>

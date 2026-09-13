@@ -24,13 +24,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [transitionState, setTransitionState] = useState<'idle' | 'switching' | 'done'>('idle');
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
+  const [switchingUser, setSwitchingUser] = useState<any>(null);
 
-  const handleSwitch = useCallback(async (role: UserRole) => {
+  const handleSwitch = useCallback(async (role: UserRole, userId?: string) => {
     setTransitionState('switching');
     setShowAccountSwitcher(false);
-    await useAppStore.getState().switchToRole(role);
-    setTimeout(() => setTransitionState('done'), 400);
-    setTimeout(() => setTransitionState('idle'), 600);
+
+    let target: any;
+    if (role === 'customer') target = await import('../db/database').then(m => m.db.customers.get(userId || 'c1'));
+    else if (role === 'worker') target = await import('../db/database').then(m => m.db.workers.get(userId || 'w1'));
+    else if (role === 'admin') target = await import('../db/database').then(m => m.db.admins.get('admin1'));
+
+    if (target) {
+      setSwitchingUser(target);
+      const unread = await import('../db/database').then(m =>
+        m.db.notifications.where('userId').equals(target.id).filter((n: any) => !n.reading).count()
+      );
+      setCurrentUser(target);
+      localStorage.setItem('vaishnavi-current-user', JSON.stringify(target));
+      setTimeout(() => setTransitionState('done'), 200);
+      setTimeout(() => setTransitionState('idle'), 450);
+    }
   }, []);
 
   return (
@@ -42,20 +56,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 bg-[#F5F0E7] flex items-center justify-center"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: '#FBF9F4' }}
           >
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 1.1, opacity: 0 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 300 }}
               className="text-center"
             >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#173F35] flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">V</span>
+              {/* Leaf Logo */}
+              <div className="w-16 h-16 mx-auto mb-4">
+                <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="switchLeafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#2D6A4F" />
+                      <stop offset="100%" stopColor="#173F35" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M40 8C28 18 12 32 15 52C18 68 32 80 40 92C48 80 62 68 65 52C68 32 52 18 40 8Z"
+                    fill="url(#switchLeafGrad)"
+                  />
+                  <path d="M40 18V82" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M40 35C34 32 28 33 24 38" stroke="rgba(255,255,255,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                  <path d="M40 50C46 47 52 48 56 53" stroke="rgba(255,255,255,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                </svg>
               </div>
-              <p className="text-[#173F35] font-semibold text-lg">Switching account...</p>
+              <p className="font-bold text-[#173F35] text-base">
+                {switchingUser?.name || 'Loading...'}
+              </p>
+              <p className="text-xs text-[#7A8B7E] mt-1 capitalize">{switchingUser?.role || 'loading...'}</p>
             </motion.div>
           </motion.div>
         ) : (

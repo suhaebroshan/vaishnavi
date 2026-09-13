@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
 import { useAppStore } from '../../db/store';
-import { IconBell, IconClock, IconMapPin, IconTrendingUp, IconCheckCircle, IconWallet, IconBriefcase, IconStar, IconUser as IconProfile } from '../../components/icons';
+import { IconBell, IconClock, IconMapPin, IconTrendingUp, IconCheckCircle, IconWallet, IconBriefcase, IconStar, IconUser } from '../../components/icons';
 import { AnimatePresence } from 'framer-motion';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
@@ -27,14 +27,13 @@ export default function WorkerHome() {
       const pending = allBookings.filter((b: any) => b.status === 'requested').length;
       setPendingRequests(pending);
 
-      // Calculate real today's earnings from completed payments
       const payments = await db.payments.where('status').equals('completed').toArray();
       const workerBookings = await db.bookings.where('workerId').equals(user.id).toArray();
       const todayPayments = payments.filter((p: any) =>
         workerBookings.some((b: any) => b.id === p.bookingId)
       );
       const total = todayPayments.reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      setTodayEarnings(total || (user as any).todayEarnings || 1850);
+      setTodayEarnings(total || (user as any).todayEarnings || 2450);
 
       const activeJobs = allBookings
         .filter((b: any) => !['requested'].includes(b.status))
@@ -51,28 +50,33 @@ export default function WorkerHome() {
   }, [user?.id]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-screen bg-[var(--va-cream-light)] pb-28">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="min-h-screen bg-[#FBF9F4] pb-28">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-[var(--va-cream-light)]/92 backdrop-blur-xl px-5 pt-4 pb-3 border-b border-[rgba(23,63,53,0.06)]">
+      <div className="sticky top-0 z-30 bg-[#FBF9F4]/95 backdrop-blur-xl px-5 pt-4 pb-3 border-b border-[rgba(23,63,53,0.06)]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm text-[var(--va-text-muted)] font-medium">{greeting}, {user?.name?.split(' ')[0]} 👋</p>
+            <p className="text-sm text-[#5A6B5E] font-medium">{greeting}, {user?.name?.split(' ')[0]} 👋</p>
             <h1 className="font-extrabold text-[#173F35] text-lg" style={{ letterSpacing: '-0.02em' }}>Dashboard</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/worker/requests')} className="relative p-2.5 rounded-full hover:bg-[var(--va-cream)] transition-colors active:scale-95">
-              <IconBell size={20} className="text-[var(--va-green)]" />
+            <button
+              onClick={() => navigate('/worker/requests')}
+              className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95"
+            >
+              <IconBell size={20} className="text-[#173F35]" />
               {pendingRequests > 0 && (
                 <motion.span
                   initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[var(--va-terracotta)] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                  className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#C86F52] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
                   style={{ boxShadow: '0 2px 8px rgba(200,111,82,0.4)' }}
                 >
                   {pendingRequests}
                 </motion.span>
               )}
             </button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1E4D3F] to-[#102F28] flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer active:scale-95 transition-transform"
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer active:scale-95 transition-transform"
+              style={{ background: 'linear-gradient(145deg, #1E4D3F 0%, #102F28 100%)' }}
               onClick={() => navigate('/worker/profile')}
             >
               {user?.name?.charAt(0)}
@@ -82,10 +86,10 @@ export default function WorkerHome() {
 
         {/* Stats — 2×2 grid */}
         <motion.div className="grid grid-cols-2 gap-3" variants={container} initial="initial" animate="animate">
-          <StatTile icon={<IconTrendingUp size={16} />} label="Today's Earnings" value={`₹${todayEarnings.toLocaleString()}`} color="#173F35" />
-          <StatTile icon={<IconCheckCircle size={16} />} label="Total Jobs" value="4" color="#C86F52" />
-          <StatTile icon={<IconStar size={16} />} label="Rating" value="⭐ 4.8" color="#173F35" sub="/ 231 jobs" />
-          <StatTile icon={<IconBriefcase size={16} />} label="Pending" value={String(pendingRequests)} color="#C86F52" />
+          <StatTile icon={<IconTrendingUp size={15} />} label="Today's Earnings" value={`₹${todayEarnings.toLocaleString()}`} color="#173F35" />
+          <StatTile icon={<IconCheckCircle size={15} />} label="Total Jobs" value="4" color="#C86F52" />
+          <StatTile icon={<IconStar size={15} />} label="Rating" value="⭐ 4.8" color="#173F35" sub="/ 231 jobs" />
+          <StatTile icon={<IconBriefcase size={15} />} label="Pending" value={String(pendingRequests)} color="#C86F52" />
         </motion.div>
       </div>
 
@@ -93,9 +97,10 @@ export default function WorkerHome() {
       <AnimatePresence>
         {pendingRequests > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -10, height: 0 }}
+            initial={{ opacity: 0, y: -8, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -10, height: 0 }}
+            exit={{ opacity: 0, y: -8, height: 0 }}
+            transition={{ type: 'spring', damping: 22, stiffness: 250 }}
             className="mx-5 mt-4"
           >
             <motion.button
@@ -103,19 +108,19 @@ export default function WorkerHome() {
               onClick={() => navigate('/worker/requests')}
               className="w-full text-left rounded-[20px] p-4"
               style={{
-                background: 'linear-gradient(145deg, rgba(200,111,82,0.10) 0%, rgba(200,111,82,0.04) 100%)',
+                background: 'linear-gradient(145deg, rgba(200,111,82,0.08) 0%, rgba(200,111,82,0.03) 100%)',
                 border: '1.5px solid rgba(200,111,82,0.20)',
-                boxShadow: '0 4px 16px rgba(200,111,82,0.12)',
+                boxShadow: '0 4px 16px rgba(200,111,82,0.10)',
               }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-2 h-2 rounded-full bg-[var(--va-terracotta)]" style={{ boxShadow: '0 0 6px rgba(200,111,82,0.6)' }} />
-                <span className="text-xs font-extrabold tracking-widest text-[var(--va-terracotta)] uppercase">
+                <span className="w-2 h-2 rounded-full bg-[#C86F52]" style={{ boxShadow: '0 0 6px rgba(200,111,82,0.6)' }} />
+                <span className="text-xs font-extrabold tracking-widest text-[#C86F52] uppercase">
                   {pendingRequests} New Request{pendingRequests > 1 ? 's' : ''}
                 </span>
               </div>
               <p className="font-bold text-[#173F35] text-sm">Suhaeb needs bathroom plumbing repair tomorrow at 4:00 PM</p>
-              <div className="flex items-center gap-3 mt-1.5 text-xs text-[var(--va-text-muted)]">
+              <div className="flex items-center gap-3 mt-1.5 text-xs text-[#7A8B7E]">
                 <span className="flex items-center gap-1"><IconMapPin size={11} /> Banjara Hills</span>
                 <span className="font-bold text-[#173F35] ml-auto">₹650 est.</span>
               </div>
@@ -128,7 +133,7 @@ export default function WorkerHome() {
       <div className="mx-5 mt-6">
         <div className="flex items-center justify-between mb-3">
           <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Today's Schedule</p>
-          <button onClick={() => navigate('/worker/jobs')} className="text-xs font-semibold text-[var(--va-terracotta)]">View All →</button>
+          <button onClick={() => navigate('/worker/jobs')} className="text-xs font-semibold text-[#C86F52]">View All →</button>
         </div>
         <motion.div variants={container} initial="initial" animate="animate" className="space-y-3">
           {[
@@ -155,7 +160,7 @@ function StatTile({ icon, label, value, color, sub }: { icon: React.ReactNode; l
         {icon}
       </div>
       <p className="text-[20px] font-extrabold text-[#173F35] leading-none" style={{ letterSpacing: '-0.03em' }}>{value}</p>
-      <p className="text-[11px] text-[var(--va-text-muted)] font-medium mt-1">{label}{sub && <span className="text-[10px] text-[var(--va-text-faint)] ml-1">{sub}</span>}</p>
+      <p className="text-[11px] text-[#7A8B7E] font-medium mt-1">{label}{sub && <span className="text-[10px] text-[#A8B9A5] ml-1">{sub}</span>}</p>
     </motion.div>
   );
 }
@@ -176,7 +181,6 @@ function JobTile({ job, index }: { job: any; index: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06 }}
-      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => navigate('/worker/jobs')}
       className="w-full text-left rounded-[20px] p-4 cursor-pointer"
@@ -188,17 +192,17 @@ function JobTile({ job, index }: { job: any; index: number }) {
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: 'var(--va-cream)', color: '#173F35' }}>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: '#F5F0E7', color: '#173F35' }}>
             <IconClock size={13} />
           </div>
-          <span className="text-xs font-mono text-[var(--va-text-muted)] font-medium">{job.time}</span>
+          <span className="text-xs font-mono text-[#7A8B7E] font-medium">{job.time}</span>
         </div>
         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full" style={{ background: sc.bg, color: sc.text }}>
           {job.status.replace(/_/g, ' ')}
         </span>
       </div>
       <p className="font-bold text-sm text-[#173F35]">{job.service}</p>
-      <div className="flex items-center gap-3 mt-2 text-xs text-[var(--va-text-muted)]">
+      <div className="flex items-center gap-3 mt-2 text-xs text-[#7A8B7E]">
         <span className="flex items-center gap-1"><IconMapPin size={11} /> {job.location}</span>
         <span className="font-extrabold text-[#173F35] ml-auto text-sm">{job.price}</span>
       </div>

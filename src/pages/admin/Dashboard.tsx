@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { db } from '../../db/database';
+import { useAppStore } from '../../db/store';
 import { IconClipboard as IconClipboardList, IconUsers, IconTrendingUp, IconHelpCircle as IconAlertCircle, IconMap, IconClipboard, IconWallet, IconLayout } from '../../components/icons';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
@@ -9,7 +10,11 @@ const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, tran
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const currentUser = useAppStore(s => s.currentUser);
   const [stats, setStats] = useState({ bookings: 0, workers: 0, revenue: 0, pending: 0, onlineWorkers: 0 });
+  const hour = new Date().getHours();
+  const adminGreeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const adminName = currentUser?.name || 'Santosh';
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
 
   useEffect(() => {
@@ -44,7 +49,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid rgba(23,63,53,0.06)' }}>
         <motion.p variants={item} initial="initial" animate="animate" className="text-xs font-bold tracking-widest text-[var(--va-text-faint)] uppercase mb-1">Operations Center</motion.p>
-        <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>Good morning, Santosh 👋</motion.h1>
+        <motion.h1 variants={item} initial="initial" animate="animate" className="text-xl font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.03em' }}>{adminGreeting}, {adminName} 👋</motion.h1>
         <motion.p variants={item} initial="initial" animate="animate" className="text-sm text-[var(--va-text-muted)] mt-0.5">Real-time overview of Vaishnavi operations</motion.p>
       </div>
 
