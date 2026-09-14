@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAppStore } from '../db/store';
+import { useAppStore, switchToRole } from '../db/store';
 import { SERVICES } from '../db/seed';
 import { IconWrench, IconChef, IconBroom, IconShield, IconLightning, IconHeart, IconSparkle, IconUsers } from '../components/icons';
 import { db } from '../db/database';
@@ -178,7 +178,6 @@ function AccountCard({
 export default function Landing() {
   const navigate = useNavigate();
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
-  const switchToRole = useAppStore(s => s.switchToRole);
   // No progress bar needed — cards render immediately on mount.
 
   const handleSelect = async (role: AccountType) => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAppStore } from '../db/store';
+import { switchToRole } from '../db/store';
 
 const GESTURE_CYCLE: ('customer' | 'worker' | 'admin')[] = ['customer', 'worker', 'admin'];
 
@@ -13,11 +13,12 @@ function handleTouchEnd(e: TouchEvent) {
   const diff = lastTouchY - e.changedTouches[0].clientY;
   if (Math.abs(diff) < 60) return;
   if (e.changedTouches.length === 3) {
+    const { useAppStore } = require('../db/store');
     const currentRole = useAppStore.getState().currentRole;
     const roleList: ('customer' | 'worker' | 'admin')[] = ['customer', 'worker', 'admin'];
     const idx = roleList.indexOf(currentRole || 'customer');
     const nextIdx = diff > 0 ? (idx + 1) % 3 : (idx + 2) % 3;
-    useAppStore.getState().switchToRole(GESTURE_CYCLE[nextIdx]);
+    switchToRole(GESTURE_CYCLE[nextIdx]);
   }
 }
 

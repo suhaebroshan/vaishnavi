@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import type { AppUser, UserRole } from '../types';
 import { db } from './database';
+import type { AppUser, UserRole } from '../types';
 
 interface AppState {
   currentUser: AppUser | null;
   currentRole: UserRole | null;
   setCurrentUser: (user: AppUser) => void;
-  switchToRole: (role: UserRole) => Promise<void>;
   unreadNotifications: number;
   setUnreadCount: (n: number) => void;
 }
@@ -16,19 +15,25 @@ export const useAppStore = create<AppState>((set) => ({
   currentRole: null,
   unreadNotifications: 0,
 
-  setCurrentUser: (user) => set({ currentUser: user }),
+  setCurrentUser: (user) => {
+    const role = (user as any)?.role as UserRole | null;
+    set({ currentUser: user, currentRole: role });
+  },
 
   setUnreadCount: (n) => set({ unreadNotifications: n }),
-
-  switchToRole: async (role: UserRole) => {
-    let target: AppUser | undefined;
-    if (role === 'customer') target = await db.customers.get('c1');
-    else if (role === 'worker') target = await db.workers.get('w1');
-    else if (role === 'admin') target = await db.admins.get('admin1');
-
-    if (target) {
-      const unread = await db.notifications.where('userId').equals(target.id).filter((n: any) => !n.reading).count();
-      set({ currentUser: target as AppUser, currentRole: role, unreadNotifications: unread });
-    }
-  },
 }));
+
+// ── Separate async helper for landing page & store-based switching ──
+export async function switchToRole(role: UserRole): Promise<void> {
+  let target: any = null;
+  if (role === 'customer') target = await db.customers.get('c1');
+  else if (role === 'worker') target = await db.workers.get('w1');
+  else if (role === 'admin') target = await db.admins.get('admin1');
+
+  if (target) {
+    const unread = await db.notifications.where('userId').equals(target.id).filter((n: any) => !n.reading).count();
+    const { useAppStore: store } = await import('./store');
+    store.getState().setCurrentUser(target);
+    store.getState().setUnreadCount(unread);
+  }
+}

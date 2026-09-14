@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [transitionState, setTransitionState] = useState<'idle' | 'switching' | 'done'>('idle');
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
+  const setUnreadCount = useAppStore(s => s.setUnreadCount);
   const [switchingUser, setSwitchingUser] = useState<any>(null);
 
   const handleSwitch = useCallback(async (role: UserRole, userId?: string) => {
@@ -41,11 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         m.db.notifications.where('userId').equals(target.id).filter((n: any) => !n.reading).count()
       );
       setCurrentUser(target);
+      setUnreadCount(unread);
       localStorage.setItem('vaishnavi-current-user', JSON.stringify(target));
       setTimeout(() => setTransitionState('done'), 200);
       setTimeout(() => setTransitionState('idle'), 450);
     }
-  }, []);
+  }, [setCurrentUser, setUnreadCount]);
 
   return (
     <AuthContext.Provider value={{ showAccountSwitcher, setShowAccountSwitcher, transitionState, setTransitionState }}>
@@ -67,7 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               transition={{ type: 'spring', damping: 22, stiffness: 300 }}
               className="text-center"
             >
-              {/* Leaf Logo */}
               <div className="w-16 h-16 mx-auto mb-4">
                 <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                   <defs>
@@ -76,18 +77,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       <stop offset="100%" stopColor="#173F35" />
                     </linearGradient>
                   </defs>
-                  <path
-                    d="M40 8C28 18 12 32 15 52C18 68 32 80 40 92C48 80 62 68 65 52C68 32 52 18 40 8Z"
-                    fill="url(#switchLeafGrad)"
-                  />
+                  <path d="M40 8C28 18 12 32 15 52C18 68 32 80 40 92C48 80 62 68 65 52C68 32 52 18 40 8Z" fill="url(#switchLeafGrad)" />
                   <path d="M40 18V82" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round" />
                   <path d="M40 35C34 32 28 33 24 38" stroke="rgba(255,255,255,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
                   <path d="M40 50C46 47 52 48 56 53" stroke="rgba(255,255,255,0.2)" strokeWidth="1.2" strokeLinecap="round" fill="none" />
                 </svg>
               </div>
-              <p className="font-bold text-[#173F35] text-base">
-                {switchingUser?.name || 'Loading...'}
-              </p>
+              <p className="font-bold text-[#173F35] text-base">{switchingUser?.name || 'Loading...'}</p>
               <p className="text-xs text-[#7A8B7E] mt-1 capitalize">{switchingUser?.role || 'loading...'}</p>
             </motion.div>
           </motion.div>

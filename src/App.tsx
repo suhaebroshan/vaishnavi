@@ -39,18 +39,6 @@ import { useAppStore } from './db/store';
 
 const queryClient = new QueryClient();
 
-// Services registry for cross-page access
-(window as any).__services = [
-  { id: 'housekeeping', name: 'Housekeeping', description: 'Thorough home cleaning by trained professionals.', icon: '🧹', color: '#173F35', options: [{ id: 'full_home', label: 'Full Home Cleaning', priceRange: [999, 1899] }, { id: 'kitchen', label: 'Kitchen Deep Clean', priceRange: [599, 999] }, { id: 'bathroom', label: 'Bathroom Cleaning', priceRange: [399, 699] }, { id: 'laundry', label: 'Laundry & Ironing', priceRange: [299, 599] }, { id: 'general', label: 'General Household Help', priceRange: [499, 899] }] },
-  { id: 'cooking', name: 'Cooking', description: 'Home-cooked meals by experienced chefs.', icon: '👩🍳', color: '#C86F52', options: [{ id: 'breakfast', label: 'Breakfast Prep', priceRange: [300, 500] }, { id: 'lunch_dinner', label: 'Lunch / Dinner', priceRange: [400, 700] }, { id: 'special_meal', label: 'Special Occasion Meal', priceRange: [800, 1500] }, { id: 'dietary', label: 'Diet-Specific Cooking', priceRange: [500, 900] }] },
-  { id: 'plumbing', name: 'Plumbing', description: 'Reliable plumbing support for a hassle-free home.', icon: '🔧', color: '#173F35', options: [{ id: 'leak_repair', label: 'Leak Repair', priceRange: [400, 800] }, { id: 'pipe_repair', label: 'Pipe Repair', priceRange: [500, 1000] }, { id: 'bathroom_issue', label: 'Bathroom Issue', priceRange: [500, 1200] }, { id: 'kitchen_issue', label: 'Kitchen Issue', priceRange: [400, 900] }, { id: 'installation', label: 'Installation', priceRange: [600, 1500] }, { id: 'general_maintenance', label: 'General Maintenance', priceRange: [350, 700] }] },
-  { id: 'electrical', name: 'Electrical', description: 'Safe electrical fixes and installations.', icon: '⚡', color: '#C86F52', options: [{ id: 'wiring', label: 'Wiring Work', priceRange: [500, 1200] }, { id: 'fan_light', label: 'Fan / Light Fix', priceRange: [300, 600] }, { id: 'switchboard', label: 'Switchboard Repair', priceRange: [300, 500] }, { id: 'outlet_install', label: 'Outlet Installation', priceRange: [400, 800] }, { id: 'general_electrical', label: 'General Electrical', priceRange: [350, 700] }] },
-  { id: 'security', name: 'Security', description: 'Trusted security personnel for your home.', icon: '🛡️', color: '#173F35', options: [{ id: 'day_guard', label: 'Day Shift Guard', priceRange: [800, 1500] }, { id: 'night_guard', label: 'Night Shift Guard', priceRange: [900, 1800] }, { id: 'cctv', label: 'CCTV Monitoring', priceRange: [1000, 2500] }] },
-  { id: 'elder_care', name: 'Elder Care', description: 'Compassionate care for your senior family members.', icon: '❤️', color: '#C86F52', options: [{ id: 'companion', label: 'Companionship', priceRange: [600, 1000] }, { id: 'medication', label: 'Medication Support', priceRange: [500, 900] }, { id: 'mobility', label: 'Mobility Assistance', priceRange: [700, 1200] }, { id: 'overnight', label: 'Overnight Care', priceRange: [1200, 2000] }] },
-  { id: 'caretaker', name: 'Caretakers', description: 'Dedicated caretaker for your household needs.', icon: '🏠', color: '#173F35', options: [{ id: 'daily_caretaker', label: 'Daily Caretaker', priceRange: [800, 1500] }, { id: 'live_in', label: 'Live-in Caretaker', priceRange: [1200, 2500] }] },
-  { id: 'home_support', name: 'Home Support', description: 'General household assistance for daily tasks.', icon: '✨', color: '#A8B9A5', options: [{ id: 'errands', label: 'Errands & Shopping', priceRange: [300, 600] }, { id: 'organization', label: 'Home Organization', priceRange: [500, 1000] }, { id: 'garden', label: 'Garden & Balcony', priceRange: [400, 800] }, { id: 'appliance', label: 'Appliance Setup', priceRange: [300, 700] }] },
-];
-
 function PageTransition({ children, key }: { children: React.ReactNode; key?: string }) {
   return (
     <motion.div
@@ -74,6 +62,7 @@ function AppRoutes() {
   useThreeFingerGesture();
   useKeyboardSwitch();
 
+  // No user yet → show landing page
   if (!role && !user) {
     return <Landing />;
   }
@@ -98,9 +87,9 @@ function AppRoutes() {
           {isWorker && <BottomNav />}
           {isAdmin && <AdminNav />}
 
-          <div className="relative min-h-screen" style={{ paddingBottom: isAdmin || isWorker ? '80px' : '80px' }}>
+          <div className="relative min-h-screen" style={{ paddingBottom: '80px' }}>
             <AnimatePresence mode="wait">
-              <Routes location={window.location}>
+              <Routes>
                 {/* ── CUSTOMER ── */}
                 <Route path="/" element={renderPage(<CustomerHome />, 'customer-home')} />
                 <Route path="/search" element={renderPage(<Search />, 'search')} />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../db/database';
@@ -6,6 +6,7 @@ import { useAppStore } from '../../db/store';
 import { IconBell, IconClock, IconMapPin, IconTrendingUp, IconCheckCircle, IconWallet, IconBriefcase, IconStar, IconCalendarDays, IconSwap } from '../../components/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
+import { useLiveQuery } from '../../db/use-live-query';
 
 const container = { animate: { transition: { staggerChildren: 0.07 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -14,59 +15,36 @@ export default function WorkerHome() {
   const navigate = useNavigate();
   const user = useAppStore(s => s.currentUser);
   const { setShowAccountSwitcher } = useAuth();
-  const [todayEarnings, setTodayEarnings] = useState(0);
-  const [weekEarnings, setWeekEarnings] = useState(0);
-  const [monthEarnings, setMonthEarnings] = useState(0);
-  const [pendingRequests, setPendingRequests] = useState(0);
-  const [greeting, setGreeting] = useState('');
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [jobs, setJobs] = useState<any[]>([]);
 
-  useEffect(() => {
-    const hour = new Date().getHours();
-    setGreeting(hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening');
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
-    async function load() {
-      if (!user) return;
-      const allBookings = await db.bookings.where('workerId').equals(user.id).toArray();
-      const completed = allBookings.filter((b: any) => ['completed', 'paid', 'reviewed'].includes(b.status));
-      const pending = allBookings.filter((b: any) => b.status === 'requested').length;
-      setPendingRequests(pending);
+  // Live-reactive data — refreshes within 600ms of any DB change
+  const [pendingRequests, jobs] = useLiveQuery(`worker-home-${user?.id}`, async () => {
+    if (!user) return [0, [] as any[]];
+    const allBookings = await db.bookings.where('workerId').equals(user.id).toArray();
+    const pending = allBookings.filter((b: any) => b.status === 'requested').length;
+    const activeJobs = allBookings
+      .filter((b: any) => !['requested', 'completed', 'paid', 'reviewed'].includes(b.status))
+      .sort((a: any, b: any) => (a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date)))
+      .slice(0, 5);
+    const enriched = await Promise.all(activeJobs.map(async (b: any) => ({
+      ...b, customer: await db.customers.get(b.customerId),
+    })));
+    return [pending, enriched] as [number, any[]];
+  });
 
-      // Mock realistic earnings data
-      const mockToday = 1850;
-      const mockWeek = 12850;
-      const mockMonth = 48600;
-      setTodayEarnings(mockToday);
-      setWeekEarnings(mockWeek);
-      setMonthEarnings(mockMonth);
-
-      // Weekly chart data
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const weekMockData = [
-        { name: 'Mon', earnings: 2100 },
-        { name: 'Tue', earnings: 1800 },
-        { name: 'Wed', earnings: 2400 },
-        { name: 'Thu', earnings: 1600 },
-        { name: 'Fri', earnings: 2200 },
-        { name: 'Sat', earnings: 2750 },
-        { name: 'Sun', earnings: mockToday },
-      ];
-      setChartData(weekMockData);
-
-      const activeJobs = allBookings
-        .filter((b: any) => !['requested', 'completed', 'paid', 'reviewed'].includes(b.status))
-        .sort((a: any, b: any) => (a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date)))
-        .slice(0, 5);
-
-      const enriched = await Promise.all(activeJobs.map(async (b: any) => {
-        const c = await db.customers.get(b.customerId);
-        return { ...b, customer: c };
-      }));
-      setJobs(enriched);
-    }
-    load();
-  }, [user?.id]);
+  // Static earnings/chart data
+  const worker = user as any;
+  const todayEarnings = worker?.todayEarnings || 1850;
+  const weekEarnings = worker?.weekEarnings || 12850;
+  const monthEarnings = worker?.monthEarnings || 48600;
+  const chartData = useMemo(() => [
+    { name: 'Mon', earnings: 2100 }, { name: 'Tue', earnings: 1800 },
+    { name: 'Wed', earnings: 2400 }, { name: 'Thu', earnings: 1600 },
+    { name: 'Fri', earnings: 2200 }, { name: 'Sat', earnings: 2750 },
+    { name: 'Sun', earnings: todayEarnings },
+  ], [todayEarnings]);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="min-h-screen bg-[#FBF9F4] pb-28">
@@ -78,49 +56,35 @@ export default function WorkerHome() {
             <h1 className="font-extrabold text-[#173F35] text-lg" style={{ letterSpacing: '-0.02em' }}>Dashboard</h1>
           </div>
           <div className="flex items-center gap-1.5">
-            {/* Switch Profile Button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }}
               onClick={() => setShowAccountSwitcher(true)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-full active:scale-95 transition-transform"
               style={{ background: 'rgba(23,63,53,0.07)' }}
               data-testid="switch-profile-btn"
             >
-              <motion.span
-                animate={{ rotate: [0, 180, 180] }}
-                transition={{ duration: 0.4, times: [0, 0.6, 1] }}
-              >
+              <motion.span animate={{ rotate: [0, 180, 180] }} transition={{ duration: 0.4, times: [0, 0.6, 1] }}>
                 <IconSwap size={14} className="text-[#173F35]" />
               </motion.span>
               <span className="text-[11px] font-bold text-[#173F35]">Switch</span>
             </motion.button>
-            <button
-              onClick={() => navigate('/worker/requests')}
-              className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95"
-            >
+            <button onClick={() => navigate('/worker/requests')} className="relative p-2.5 rounded-full hover:bg-[#F5F0E7] transition-colors active:scale-95">
               <IconBell size={20} className="text-[#173F35]" />
               {pendingRequests > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
                   className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#C86F52] text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-                  style={{ boxShadow: '0 2px 8px rgba(200,111,82,0.4)' }}
-                >
-                  {pendingRequests}
-                </motion.span>
+                  style={{ boxShadow: '0 2px 8px rgba(200,111,82,0.4)' }}>{pendingRequests}</motion.span>
               )}
             </button>
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer active:scale-95 transition-transform"
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md cursor-pointer active:scale-95 transition-transform"
               style={{ background: 'linear-gradient(145deg, #1E4D3F 0%, #102F28 100%)' }}
-              onClick={() => navigate('/worker/profile')}
-            >
+              onClick={() => navigate('/worker/profile')}>
               {user?.name?.charAt(0)}
             </div>
           </div>
         </div>
 
-        {/* Earnings Overview — Today, Week, Month */}
+        {/* Earnings Overview */}
         <motion.div className="grid grid-cols-3 gap-2.5" variants={container} initial="initial" animate="animate">
           <EarningTile label="Today" value={`₹${todayEarnings.toLocaleString()}`} icon={<IconWallet size={14} />} color="#173F35" />
           <EarningTile label="This Week" value={`₹${weekEarnings.toLocaleString()}`} icon={<IconCalendarDays size={14} />} color="#C86F52" />
@@ -132,22 +96,13 @@ export default function WorkerHome() {
       <AnimatePresence>
         {pendingRequests > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -8, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -8, height: 0 }}
-            transition={{ type: 'spring', damping: 22, stiffness: 250 }}
+            initial={{ opacity: 0, y: -8, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -8, height: 0 }} transition={{ type: 'spring', damping: 22, stiffness: 250 }}
             className="mx-5 mt-4"
           >
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/worker/requests')}
+            <motion.button whileTap={{ scale: 0.98 }} onClick={() => navigate('/worker/requests')}
               className="w-full text-left rounded-[20px] p-4"
-              style={{
-                background: 'linear-gradient(145deg, rgba(200,111,82,0.08) 0%, rgba(200,111,82,0.03) 100%)',
-                border: '1.5px solid rgba(200,111,82,0.20)',
-                boxShadow: '0 4px 16px rgba(200,111,82,0.10)',
-              }}
-            >
+              style={{ background: 'linear-gradient(145deg, rgba(200,111,82,0.08) 0%, rgba(200,111,82,0.03) 100%)', border: '1.5px solid rgba(200,111,82,0.20)', boxShadow: '0 4px 16px rgba(200,111,82,0.10)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-[#C86F52]" style={{ boxShadow: '0 0 6px rgba(200,111,82,0.6)' }} />
                 <span className="text-xs font-extrabold tracking-widest text-[#C86F52] uppercase">
@@ -170,20 +125,16 @@ export default function WorkerHome() {
           <p className="text-base font-extrabold text-[#173F35]" style={{ letterSpacing: '-0.02em' }}>Weekly Earnings</p>
           <button onClick={() => navigate('/worker/earnings')} className="text-xs font-semibold text-[#C86F52]">Details →</button>
         </div>
-        <motion.div
-          variants={item} initial="initial" animate="animate"
+        <motion.div variants={item} initial="initial" animate="animate"
           className="bg-white rounded-[20px] p-4 border border-[rgba(23,63,53,0.07)]"
-          style={{ boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}
-        >
+          style={{ boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
           <ResponsiveContainer width="100%" height={140}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E8E4DB" />
               <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#7A8B7E' }} />
               <YAxis hide />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#173F35', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '11px' }}
-                formatter={(value: number) => [`₹${value}`, 'Earnings']}
-              />
+              <Tooltip contentStyle={{ backgroundColor: '#173F35', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '11px' }}
+                formatter={(value: number) => [`₹${value}`, 'Earnings']} />
               <Line type="monotone" dataKey="earnings" stroke="#173F35" strokeWidth={2} dot={{ fill: '#173F35', r: 3 }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -204,9 +155,7 @@ export default function WorkerHome() {
         </div>
         <motion.div variants={container} initial="initial" animate="animate" className="space-y-3">
           {jobs.length > 0 ? (
-            jobs.map((job, i) => (
-              <JobTile key={job.id} job={job} index={i} />
-            ))
+            jobs.map((job: any, i: number) => <JobTile key={job.id} job={job} index={i} />)
           ) : (
             <div className="text-center py-8 text-[#A8B9A5] text-sm flex flex-col items-center gap-2">
               <IconBriefcase size={24} className="text-[#D4CFC4]" />
@@ -221,14 +170,9 @@ export default function WorkerHome() {
 
 function EarningTile({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <motion.div variants={item} className="rounded-[16px] p-3" style={{
-      background: 'white',
-      border: '1.5px solid rgba(23,63,53,0.07)',
-      boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
-    }}>
-      <div className="w-7 h-7 rounded-[10px] flex items-center justify-center mb-2" style={{ background: color + '14', color }}>
-        {icon}
-      </div>
+    <motion.div variants={item} className="rounded-[16px] p-3"
+      style={{ background: 'white', border: '1.5px solid rgba(23,63,53,0.07)', boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+      <div className="w-7 h-7 rounded-[10px] flex items-center justify-center mb-2" style={{ background: color + '14', color }}>{icon}</div>
       <p className="text-sm font-extrabold text-[#173F35] leading-none" style={{ letterSpacing: '-0.02em' }}>{value}</p>
       <p className="text-[10px] text-[#7A8B7E] font-medium mt-1">{label}</p>
     </motion.div>
@@ -237,14 +181,9 @@ function EarningTile({ label, value, icon, color }: { label: string; value: stri
 
 function StatTile({ icon, label, value, sub, color }: { icon: React.ReactNode; label: string; value: string; sub?: string; color: string }) {
   return (
-    <motion.div variants={item} className="rounded-[20px] p-4" style={{
-      background: 'white',
-      border: '1.5px solid rgba(23,63,53,0.07)',
-      boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
-    }}>
-      <div className="w-9 h-9 rounded-[12px] flex items-center justify-center mb-3" style={{ background: color + '14', color }}>
-        {icon}
-      </div>
+    <motion.div variants={item} className="rounded-[20px] p-4"
+      style={{ background: 'white', border: '1.5px solid rgba(23,63,53,0.07)', boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+      <div className="w-9 h-9 rounded-[12px] flex items-center justify-center mb-3" style={{ background: color + '14', color }}>{icon}</div>
       <p className="text-[20px] font-extrabold text-[#173F35] leading-none" style={{ letterSpacing: '-0.03em' }}>{value}</p>
       <p className="text-[11px] text-[#7A8B7E] font-medium mt-1">{label}</p>
       {sub && <p className="text-[10px] text-[#A8B9A5] mt-0.5">{sub}</p>}
@@ -254,29 +193,20 @@ function StatTile({ icon, label, value, sub, color }: { icon: React.ReactNode; l
 
 function JobTile({ job, index }: { job: any; index: number }) {
   const statusColors: Record<string, { bg: string; text: string }> = {
-    on_the_way:   { bg: 'rgba(23,63,53,0.10)', text: '#173F35' },
-    assigned:     { bg: 'rgba(23,63,53,0.10)', text: '#173F35' },
-    requested:    { bg: 'rgba(200,111,82,0.12)', text: '#B55E42' },
-    in_progress:  { bg: 'rgba(200,111,82,0.12)', text: '#C86F52' },
-    completed:    { bg: 'rgba(168,185,165,0.20)', text: '#4A6A42' },
+    on_the_way: { bg: 'rgba(23,63,53,0.10)', text: '#173F35' },
+    assigned:   { bg: 'rgba(23,63,53,0.10)', text: '#173F35' },
+    requested:  { bg: 'rgba(200,111,82,0.12)', text: '#B55E42' },
+    in_progress:{ bg: 'rgba(200,111,82,0.12)', text: '#C86F52' },
+    completed:  { bg: 'rgba(168,185,165,0.20)', text: '#4A6A42' },
   };
   const sc = statusColors[job.status] || statusColors.requested;
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => navigate('/worker/jobs')}
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}
+      whileTap={{ scale: 0.98 }} onClick={() => navigate('/worker/jobs')}
       className="w-full text-left rounded-[20px] p-4 cursor-pointer"
-      style={{
-        background: 'white',
-        border: '1.5px solid rgba(23,63,53,0.07)',
-        boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
-      }}
-    >
+      style={{ background: 'white', border: '1.5px solid rgba(23,63,53,0.07)', boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: '#F5F0E7', color: '#173F35' }}>

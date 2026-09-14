@@ -4,9 +4,10 @@ import { SERVICES, ACTIVE_OFFERS } from '../../db/seed';
 import { ServiceCard, BookingCard } from '../../components/Cards';
 import { IconSearch, IconMapPin, IconClock, IconBell, IconSwap } from '../../components/icons';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { db } from '../../db/database';
 import { useAuth } from '../../context/AuthContext';
+import { useLiveQuery } from '../../db/use-live-query';
 
 const container = { animate: { transition: { staggerChildren: 0.06 } } };
 const item = { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', damping: 18, stiffness: 200 } } };
@@ -49,8 +50,6 @@ function OfferCard({ offer, index }: { offer: any; index: number }) {
 export default function CustomerHome() {
   const user = useAppStore(s => s.currentUser);
   const unreadCount = useAppStore(s => s.unreadNotifications);
-  const [activeBooking, setActiveBooking] = useState<any>(null);
-  const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const navigate = useNavigate();
   const { setShowAccountSwitcher } = useAuth();
 
@@ -58,31 +57,23 @@ export default function CustomerHome() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = user?.name?.split(' ')[0] || '';
 
-  useEffect(() => {
-    async function load() {
-      if (!user) return;
-      const bookings = await db.bookings.where('customerId').equals(user.id).toArray();
-      const active = bookings.find((b: any) =>
-        ['requested', 'assigned', 'on_the_way', 'nearby', 'arrived', 'in_progress'].includes(b.status)
-      );
-      const recent = bookings
-        .filter((b: any) => ['completed', 'paid', 'reviewed'].includes(b.status))
-        .sort((a: any, b: any) => b.createdAt - a.createdAt)
-        .slice(0, 3);
-
-      if (active) {
-        const worker = await db.workers.get(active.workerId);
-        setActiveBooking({ ...active, worker });
-      }
-
-      const enriched = await Promise.all(recent.map(async (b: any) => {
-        const w = await db.workers.get(b.workerId);
-        return { ...b, worker: w };
-      }));
-      setRecentBookings(enriched);
-    }
-    load();
-  }, [user?.id]);
+  // Live-reactive data — re-fetches within 800ms of any DB change
+  const [activeBooking, recentBookings] = useLiveQuery(`customer-home-${user?.id}`, async () => {
+    if (!user) return [null, [] as any[]];
+    const bookings = await db.bookings.where('customerId').equals(user.id).toArray();
+    const active = bookings.find((b: any) =>
+      ['requested', 'assigned', 'on_the_way', 'nearby', 'arrived', 'in_progress'].includes(b.status)
+    );
+    const recent = bookings
+      .filter((b: any) => ['completed', 'paid', 'reviewed'].includes(b.status))
+      .sort((a: any, b: any) => b.createdAt - a.createdAt)
+      .slice(0, 3);
+    const activeWithWorker = active ? { ...active, worker: await db.workers.get(active.workerId) } : null;
+    const enriched = await Promise.all(recent.map(async (b: any) => ({
+      ...b, worker: await db.workers.get(b.workerId),
+    })));
+    return [activeWithWorker, enriched] as [any, any[]];
+  });
 
   return (
     <motion.div
