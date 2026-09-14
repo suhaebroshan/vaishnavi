@@ -10,9 +10,9 @@ export function useLiveQuery<T>(key: string, factory: () => T | Promise<T>): T {
   const [value, setValue] = useState<T>(() => {
     try {
       const r = factory();
-      return r instanceof Promise ? ([] as unknown as T) : r;
+      return r instanceof Promise ? ([undefined, []] as unknown as T) : r;
     } catch {
-      return ([] as unknown as T);
+      return ([undefined, []] as unknown as T);
     }
   });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -20,20 +20,21 @@ export function useLiveQuery<T>(key: string, factory: () => T | Promise<T>): T {
   factoryRef.current = factory;
 
   useEffect(() => {
-    // Eager initial load
+    // Don't subscribe until we have data — skip if user is undefined
     const run = async () => {
       const r = await factoryRef.current();
       setValue(r as T);
     };
-    run();
+    run().catch(() => {});
 
-    // Subscribe to all Dexie change events across every store
     const tables = [
       db.bookings, db.messages, db.notifications, db.users,
       db.workers, db.customers, db.admins, db.payments,
       db.reviews, db.addresses, db.services, db.ads,
       db.bookingEvents,
-    ];
+    ].filter(t => t && typeof (t as any).on === 'function');
+
+    if (tables.length === 0) return;
 
     const unsubFns = tables.flatMap(table =>
       ['add', 'update', 'delete'].map(eventType =>

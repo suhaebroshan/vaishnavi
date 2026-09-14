@@ -40,7 +40,7 @@ import { useAppStore } from './db/store';
 
 const queryClient = new QueryClient();
 
-function PageTransition({ children, key }: { children: React.ReactNode; key?: string }) {
+function PageTransition({ children, key }: { children: React.ReactNode; key: string }) {
   return (
     <motion.div
       key={key}
