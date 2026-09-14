@@ -4,9 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.vaishnavi.app',
   appName: 'Vaishnavi',
   webDir: 'dist',
-  server: {
-    androidScheme: 'https',
-  },
   plugins: {
     StatusBar: {
       style: 'dark',
