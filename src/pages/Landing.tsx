@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppStore, switchToRole } from '../db/store';
@@ -178,7 +178,6 @@ function AccountCard({
 export default function Landing() {
   const navigate = useNavigate();
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
-  // No progress bar needed — cards render immediately on mount.
 
   const handleSelect = async (role: AccountType) => {
     await switchToRole(role);
@@ -193,9 +192,8 @@ export default function Landing() {
       localStorage.setItem('vaishnavi-current-user', JSON.stringify(fresh));
     }
 
-    // Navigate immediately after store is ready — no delay needed
-    const targetPath = role === 'admin' ? '/admin/dashboard' : role === 'worker' ? '/worker/home' : '/';
-    navigate(targetPath);
+    // No explicit navigation needed — the store update + routeKey tick in AppRoutes
+    // will force a full remount that renders the correct authenticated routes.
   };
 
   return (

@@ -1,27 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ServiceIcon } from '../../components/icons';
-import { IconCalendar, IconClock, IconMapPin, IconPlus, IconX } from '../../components/icons';
-
-// Mock upcoming bookings
-const MOCK_UPCOMING = [
-  { id: 'u1', serviceType: 'plumbing', date: '2026-09-15', time: '10:00 AM', price: 750, status: 'confirmed', address: 'Banjara Hills, H no 8-2-345', worker: 'Mahesh Rao' },
-  { id: 'u2', serviceType: 'housekeeping', date: '2026-09-18', time: '02:00 PM', price: 1200, status: 'pending', address: 'Banjara Hills, H no 8-2-345', worker: 'Priya Sharma' },
-];
-
-// Mock past bookings
-const MOCK_PAST = [
-  { id: 'p1', serviceType: 'cooking', date: '2026-09-10', time: '06:00 PM', price: 600, status: 'completed', address: 'Banjara Hills, H no 8-2-345', worker: 'Anjali Devi' },
-  { id: 'p2', serviceType: 'electrical', date: '2026-09-05', time: '11:00 AM', price: 950, status: 'completed', address: 'Banjara Hills, H no 8-2-345', worker: 'Ravi Kumar' },
-];
+import { IconCalendar, IconClock, IconPlus, IconX } from '../../components/icons';
+import { db } from '../../db/database';
+import { useAppStore } from '../../db/store';
+import { StatusBadge } from '../../components/Cards';
 
 type Tab = 'upcoming' | 'past';
 
 export default function CustomerBookings() {
   const navigate = useNavigate();
+  const user = useAppStore(s => s.currentUser);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [tab, setTab] = useState<Tab>('upcoming');
   const [showBookModal, setShowBookModal] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      if (!user) return;
+      const all = await db.bookings.where('customerId').equals(user.id).toArray();
+      const enriched = await Promise.all(all.map(async (b: any) => {
+        const w = await db.workers.get(b.workerId);
+        return { ...b, workerName: w?.name || 'Professional' };
+      }));
+      enriched.sort((a: any, b: any) => b.createdAt - a.createdAt);
+      setBookings(enriched);
+    }
+    load();
+  }, [user?.id]);
+
+  const upcoming = bookings.filter(b => !['completed', 'paid', 'reviewed'].includes(b.status));
+  const past = bookings.filter(b => ['completed', 'paid', 'reviewed'].includes(b.status));
 
   return (
     <motion.div
@@ -61,7 +71,7 @@ export default function CustomerBookings() {
                 tab === t ? 'bg-[#173F35] text-white' : 'bg-white text-[#7A8B7E] hover:bg-[#F5F0E7]'
               }`}
             >
-              {t === 'upcoming' ? `Upcoming (${MOCK_UPCOMING.length})` : `Past (${MOCK_PAST.length})`}
+              {t === 'upcoming' ? `Active (${upcoming.length})` : `Past (${past.length})`}
             </button>
           ))}
         </div>
@@ -69,14 +79,14 @@ export default function CustomerBookings() {
 
       {/* Booking list */}
       <div className="mx-5 mt-5 space-y-3">
-        {(tab === 'upcoming' ? MOCK_UPCOMING : MOCK_PAST).map((b, i) => (
+        {(tab === 'upcoming' ? upcoming : past).map((b, i) => (
           <motion.div
             key={b.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
             onClick={() => navigate(`/booking/${b.id}`)}
-            className="bg-white rounded-[20px] p-4 border border-[rgba(23,63,53,0.07)] cursor-pointer"
+            className="bg-white rounded-[20px] p-4 border border-[rgba(23,63,53,0.07)] cursor-pointer active:scale-[0.99] transition-transform"
             style={{ boxShadow: '0 2px 10px rgba(23,63,53,0.06), inset 0 1px 0 rgba(255,255,255,0.9)' }}
           >
             <div className="flex items-center gap-3">
@@ -86,37 +96,26 @@ export default function CustomerBookings() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="font-bold text-sm text-[#173F35] capitalize">{b.serviceType.replace(/_/g, ' ')}</p>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${b.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {b.status === 'confirmed' ? 'Confirmed' : 'Pending'}
-                  </span>
+                  <StatusBadge status={b.status} small />
                 </div>
-                <p className="text-xs text-[#7A8B7E] mt-0.5">{b.worker}</p>
+                <p className="text-xs text-[#7A8B7E] mt-0.5">{b.workerName}</p>
                 <div className="flex items-center gap-3 mt-1.5 text-xs text-[#7A8B7E]">
-                  <span className="flex items-center gap-1"><IconClock size={11} /> {b.time}</span>
-                  <span className="flex items-center gap-1"><IconMapPin size={11} /> {b.address.split(',')[0]}</span>
+                  <span className="flex items-center gap-1"><IconClock size={11} /> {b.date} · {b.time}</span>
                 </div>
               </div>
-              <span className="font-extrabold text-[#173F35] text-sm">₹{b.price.toLocaleString()}</span>
+              <span className="font-extrabold text-[#173F35] text-sm">₹{b.finalPrice || b.estimatedPrice?.toLocaleString()}</span>
             </div>
           </motion.div>
         ))}
 
         {/* Empty state */}
-        {tab === 'upcoming' && MOCK_UPCOMING.length === 0 && (
+        {(tab === 'upcoming' ? upcoming : past).length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(23,63,53,0.07)' }}>
               <IconCalendar size={28} className="text-[#173F35]" />
             </div>
-            <p className="text-[#7A8B7E] font-medium">No upcoming bookings</p>
-            <p className="text-xs text-[#A8B9A5] mt-1">Book your next service today</p>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowBookModal(true)}
-              className="mt-4 px-6 py-3 rounded-full text-white text-sm font-bold"
-              style={{ background: 'linear-gradient(145deg, #1E4D3F 0%, #102F28 100%)', boxShadow: '0 4px 14px rgba(23,63,53,0.30)' }}
-            >
-              Book a Service
-            </motion.button>
+            <p className="text-[#7A8B7E] font-medium">{tab === 'upcoming' ? 'No active bookings' : 'No past bookings yet'}</p>
+            <p className="text-xs text-[#A8B9A5] mt-1">{tab === 'upcoming' ? 'Book your next service today' : 'Completed bookings will appear here'}</p>
           </motion.div>
         )}
       </div>

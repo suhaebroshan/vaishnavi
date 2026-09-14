@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
@@ -57,12 +58,22 @@ function PageTransition({ children, key }: { children: React.ReactNode; key?: st
 function AppRoutes() {
   const role = useAppStore(s => s.currentRole);
   const user = useAppStore(s => s.currentUser);
+  // Tick counter that forces remount whenever user or role changes, bypassing
+  // React Router's same-URL no-op behavior.
+  const tick = `${role ?? 'g'}-${user?.id ?? 'n'}`;
+  const [, setTick] = useState(tick);
+  useEffect(() => {
+    // Trigger re-render + remount by updating the state with the same value
+    // React batches these and schedules one re-render; after it commits,
+    // the next tick value causes a key change → full remount.
+    setTimeout(() => setTick(tick), 0);
+  }, [tick]);
 
   useDatabaseInit();
   useThreeFingerGesture();
   useKeyboardSwitch();
 
-  // No user yet → show landing page
+  // No user yet → show landing page (outside keyed container so it always remounts fresh)
   if (!role && !user) {
     return <Landing />;
   }
@@ -80,7 +91,9 @@ function AppRoutes() {
   );
 
   return (
-    <div className="max-w-[430px] mx-auto bg-[var(--va-cream-light)] min-h-screen relative" style={containerStyle}>
+    // Keyed wrapper: when tick changes, React unmounts+remounts everything,
+    // forcing a fresh render regardless of whether the URL actually changed.
+    <div key={tick} className="max-w-[430px] mx-auto bg-[var(--va-cream-light)] min-h-screen relative" style={containerStyle}>
       <DBProvider>
         <AuthProvider>
           {isCustomer && <BottomNav />}

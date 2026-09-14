@@ -360,11 +360,23 @@ export async function seedDatabase() {
     // Wait for the database to be ready (migration may still be in progress)
     await db.open();
 
-    // Clear any stale data from a previous schema mismatch
+    // Fast path: if DB already has seeded data, skip
+    const [userCount, workerCount, bookingCount] = await Promise.all([
+      db.users.count(),
+      db.workers.count(),
+      db.bookings.count(),
+    ]);
+    console.log('[Seed] Counts — users:', userCount, 'workers:', workerCount, 'bookings:', bookingCount);
+    if (userCount > 0 && workerCount > 0 && bookingCount > 0) {
+      console.log('[Seed] Database already populated (' + userCount + ' users, ' + workerCount + ' workers, ' + bookingCount + ' bookings) — skipping');
+      return;
+    }
+
+    // Clear any stale partial data from a previous failed seed
     try {
       const storeNames = Object.keys(db.tables).filter((k: any) => k !== '__proto__' && k !== 'constructor');
       for (const storeName of storeNames) {
-        await (db as any)[storeName].clear();
+        try { await (db as any)[storeName].clear(); } catch {}
       }
     } catch {
       // Some stores may not exist yet during migration — ignore
@@ -408,12 +420,45 @@ export async function seedDatabase() {
     console.log('[Seed] Database initialized with', bk.length, 'bookings,', WORKERS.length, 'workers, 1 customer');
   } catch (e) {
     console.error('[DB Seed Error]', e);
-    // If seed fails catastrophically (e.g. schema mismatch), delete and retry once
+    // If seed fails catastrophically (e.g. schema mismatch), delete, reopen, and retry once
     try {
       await db.delete();
-      console.log('[DB] Deleted corrupted database, will reinitialize on next load');
-    } catch {
-      // Ignore — will retry on next page load
+      console.log('[DB] Deleted corrupted database, retrying initialization...');
+      await db.open();
+      await seedOnce(db);
+      console.log('[Seed] Retry succeeded after DB reset');
+    } catch (err) {
+      console.error('[DB Seed Retry Failed]', err);
     }
   }
+}
+
+// Core seeding logic — called by both main path and retry path
+async function seedOnce(dbx: any) {
+  const addAll = <T extends { id: string }>(table: any, items: T[]) =>
+    Promise.all(items.map(item => dbx[table].add(item).catch(() => {})));
+
+  await addAll('users', [
+    ...CUSTOMERS.map(c => ({ ...c, role: 'customer' as const })),
+    ...WORKERS.map(w => ({ ...w, role: 'worker' as const })),
+    ...ADMINS.map(a => ({ ...a, role: 'admin' as const })),
+  ]);
+  await addAll('workers', WORKERS);
+  await addAll('customers', CUSTOMERS);
+  await addAll('admins', ADMINS);
+  await addAll('services', SERVICES);
+  await addAll('addresses', ADDRESSES);
+  await addAll('ads', ACTIVE_OFFERS);
+
+  const bae = generateAllBookings();
+  const bk = bae.filter(x => 'customerId' in x) as any[];
+  const ev = bae.filter(x => 'type' in x && 'message' in x) as any[];
+  await addAll('bookings', bk);
+  await addAll('bookingEvents', ev);
+  await addAll('reviews', REVIEWS);
+  await addAll('payments', PAYMENTS);
+  await addAll('messages', MESSAGES);
+  await addAll('notifications', NOTIFICATIONS);
+
+  console.log('[Seed] Database initialized with', bk.length, 'bookings,', WORKERS.length, 'workers, 1 customer');
 }

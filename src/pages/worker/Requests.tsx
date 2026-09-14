@@ -17,7 +17,12 @@ export default function WorkerRequests() {
       if (!user) return;
       const bookings = await db.bookings.where('workerId').equals(user.id).toArray();
       const pending = bookings.filter((b: any) => b.status === 'requested');
-      setRequests(pending);
+      const enriched = await Promise.all(pending.map(async (b: any) => {
+        const c = await db.customers.get(b.customerId);
+        const a = b.addressId ? await db.addresses.get(b.addressId) : null;
+        return { ...b, customer: c, address: a };
+      }));
+      setRequests(enriched);
     }
     load();
   }, [user?.id]);
@@ -90,18 +95,22 @@ export default function WorkerRequests() {
               className="bg-white rounded-2xl border border-[rgba(23,63,53,0.08)] p-4"
             >
               <div className="flex items-start justify-between mb-3">
-                <div>
-                  <span className="text-[10px] font-bold tracking-widest text-[#C86F52] uppercase">New Request</span>
-                  <p className="font-bold text-[#173F35] text-base mt-1">{req.serviceType.replace(/_/g, ' ')}</p>
-                  <p className="text-sm text-[#7A8B7E]">{req.serviceOptionId?.replace(/_/g, ' ')}</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[#173F35] flex items-center justify-center text-white text-xs font-bold">
+                    {req.customer?.name?.charAt(0) || 'C'}
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold tracking-widest text-[#C86F52] uppercase">New Request</span>
+                    <p className="font-bold text-[#173F35] text-sm mt-0.5">{req.customer?.name || 'Customer'}</p>
+                    <p className="text-xs text-[#7A8B7E]">{req.serviceType.replace(/_/g, ' ')}</p>
+                  </div>
                 </div>
                 <StatusBadge status={req.status} />
               </div>
 
               <div className="space-y-2 mb-4">
-                <Detail icon={<IconCalendar size={14} />} label="Date" value={req.date} />
-                <Detail icon={<IconClock size={14} />} label="Time" value={req.time} />
-                <Detail icon={<IconMapPin size={14} />} label="Location" value={(req as any).addressLabel || 'Hyderabad'} />
+                <Detail icon={<IconCalendar size={14} />} label="Date & Time" value={`${req.date} · ${req.time}`} />
+                <Detail icon={<IconMapPin size={14} />} label="Location" value={req.address?.line1 ? `${req.address.line1}, ${req.address.city}` : 'Hyderabad'} />
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-[rgba(23,63,53,0.06)]">

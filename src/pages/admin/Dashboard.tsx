@@ -86,7 +86,7 @@ export default function AdminDashboard() {
 
       {/* Quick actions */}
       <motion.div className="px-5 mt-5 grid grid-cols-2 gap-3" variants={container} initial="initial" animate="animate">
-        <StatCard label="Live Map" value="在线" sub={`${stats.onlineWorkers} 位专业`} icon={<IconMap size={18} />} color="#C86F52" onPress={() => navigate('/admin/map')} />
+        <StatCard label="Live Map" value={`${stats.onlineWorkers}`} sub="professionals online" icon={<IconMap size={18} />} color="#C86F52" onPress={() => navigate('/admin/map')} />
         <StatCard label="All Bookings" value={String(stats.bookings)} sub="view all records" icon={<IconClipboard size={18} />} color="#173F35" onPress={() => navigate('/admin/bookings')} />
         <StatCard label="Workers" value={String(stats.workers)} sub="registered professionals" icon={<IconUsers size={18} />} color="#C86F52" onPress={() => navigate('/admin/workers')} />
         <StatCard label="Revenue" value={`₹${stats.revenue.toLocaleString()}`} sub="financial overview" icon={<IconWallet size={18} />} color="#173F35" onPress={() => navigate('/admin/revenue')} />

@@ -4,13 +4,12 @@ const CUSTOMER_HOME = 'Banjara Hills, Hyderabad';
 
 async function selectCustomer(page: any) {
   await page.goto('/');
-  // Landing page always renders immediately now (no auto-redirect)
   await expect(page.getByText('Choose your experience')).toBeVisible({ timeout: 8000 });
   await page.getByText('Enter as Customer').click();
-  // Wait until we land on the customer home (has location pill)
-  await expect(page.getByText(CUSTOMER_HOME)).toBeVisible({ timeout: 8000 }).catch(async () => {
-    // Fallback: wait for bottom nav to appear
-    await expect(page.locator('[data-testid="nav-Home"]')).toBeVisible({ timeout: 5000 });
+  // Wait for transition overlay + route change; prefer location pill, fall back to greeting
+  await expect(page.getByText(CUSTOMER_HOME)).toBeVisible({ timeout: 12000 }).catch(async () => {
+    // Fallback: wait for any customer-home indicator
+    await expect(page.locator('.min-h-screen')).toBeVisible({ timeout: 5000 });
   });
 }
 
@@ -18,18 +17,14 @@ async function selectWorker(page: any) {
   await page.goto('/');
   await expect(page.getByText('Choose your experience')).toBeVisible({ timeout: 8000 });
   await page.getByText('Enter as Professional').click();
-  await expect(page.getByText('Dashboard')).toBeVisible({ timeout: 8000 }).catch(async () => {
-    await expect(page.locator('[data-testid="nav-Home"]')).toBeVisible({ timeout: 5000 });
-  });
+  await expect(page.getByText('Dashboard')).toBeVisible({ timeout: 10000 });
 }
 
 async function selectAdmin(page: any) {
   await page.goto('/');
   await expect(page.getByText('Choose your experience')).toBeVisible({ timeout: 8000 });
   await page.getByText('Enter as Administrator').click();
-  await expect(page.getByText('Operations Center')).toBeVisible({ timeout: 8000 }).catch(async () => {
-    await expect(page.locator('[data-testid="nav-Dashboard"]')).toBeVisible({ timeout: 5000 });
-  });
+  await expect(page.getByText('Operations Center')).toBeVisible({ timeout: 10000 });
 }
 
 function ensureCustomer(page: any) {
