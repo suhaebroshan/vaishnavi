@@ -10,9 +10,9 @@ export function useLiveQuery<T>(key: string, factory: () => T | Promise<T>): T {
   const [value, setValue] = useState<T>(() => {
     try {
       const r = factory();
-      return r instanceof Promise ? ({} as T) : r;
+      return r instanceof Promise ? ([] as unknown as T) : r;
     } catch {
-      return {} as T;
+      return ([] as unknown as T);
     }
   });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

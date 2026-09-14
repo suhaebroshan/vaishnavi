@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAppStore, switchToRole } from '../db/store';
+import { useAppStore } from '../db/store';
 import { SERVICES } from '../db/seed';
 import { IconWrench, IconChef, IconBroom, IconShield, IconLightning, IconHeart, IconSparkle, IconUsers } from '../components/icons';
 import { db } from '../db/database';
-
-const LOADER_DURATION = 1500;
 
 type AccountType = 'customer' | 'worker' | 'admin';
 
@@ -180,20 +178,15 @@ export default function Landing() {
   const setCurrentUser = useAppStore(s => s.setCurrentUser);
 
   const handleSelect = async (role: AccountType) => {
-    await switchToRole(role);
+    let target: any = null;
+    if (role === 'customer') target = await db.customers.get('c1');
+    else if (role === 'worker') target = await db.workers.get('w1');
+    else if (role === 'admin') target = await db.admins.get('admin1');
 
-    let fresh: any = null;
-    if (role === 'customer') fresh = await db.customers.get('c1');
-    else if (role === 'worker') fresh = await db.workers.get('w1');
-    else if (role === 'admin') fresh = await db.admins.get('admin1');
-
-    if (fresh) {
-      setCurrentUser(fresh);
-      localStorage.setItem('vaishnavi-current-user', JSON.stringify(fresh));
+    if (target) {
+      setCurrentUser(target);
+      localStorage.setItem('vaishnavi-current-user', JSON.stringify(target));
     }
-
-    // No explicit navigation needed — the store update + routeKey tick in AppRoutes
-    // will force a full remount that renders the correct authenticated routes.
   };
 
   return (

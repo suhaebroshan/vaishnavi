@@ -60,14 +60,13 @@ function AppRoutes() {
   const user = useAppStore(s => s.currentUser);
   // Tick counter that forces remount whenever user or role changes, bypassing
   // React Router's same-URL no-op behavior.
-  const tick = `${role ?? 'g'}-${user?.id ?? 'n'}`;
-  const [, setTick] = useState(tick);
+  const tickRef = useRef(0);
+  const [, setTick] = useState(0);
+  const tick = tickRef.current;
   useEffect(() => {
-    // Trigger re-render + remount by updating the state with the same value
-    // React batches these and schedules one re-render; after it commits,
-    // the next tick value causes a key change → full remount.
-    setTimeout(() => setTick(tick), 0);
-  }, [tick]);
+    tickRef.current += 1;
+    setTick(tickRef.current);
+  }, [role, user?.id]);
 
   useDatabaseInit();
   useThreeFingerGesture();

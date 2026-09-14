@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { switchToRole } from '../db/store';
+import { useAppStore } from '../db/store';
+import { db } from '../db/database';
 
 const GESTURE_CYCLE: ('customer' | 'worker' | 'admin')[] = ['customer', 'worker', 'admin'];
 
@@ -9,16 +10,20 @@ function handleTouchStart(e: TouchEvent) {
   lastTouchY = e.touches[0].clientY;
 }
 
-function handleTouchEnd(e: TouchEvent) {
+async function handleTouchEnd(e: TouchEvent) {
   const diff = lastTouchY - e.changedTouches[0].clientY;
   if (Math.abs(diff) < 60) return;
   if (e.changedTouches.length === 3) {
-    const { useAppStore } = require('../db/store');
     const currentRole = useAppStore.getState().currentRole;
     const roleList: ('customer' | 'worker' | 'admin')[] = ['customer', 'worker', 'admin'];
     const idx = roleList.indexOf(currentRole || 'customer');
     const nextIdx = diff > 0 ? (idx + 1) % 3 : (idx + 2) % 3;
-    switchToRole(GESTURE_CYCLE[nextIdx]);
+    const role = GESTURE_CYCLE[nextIdx];
+    let target: any = null;
+    if (role === 'customer') target = await db.customers.get('c1');
+    else if (role === 'worker') target = await db.workers.get('w1');
+    else if (role === 'admin') target = await db.admins.get('admin1');
+    if (target) useAppStore.getState().setCurrentUser(target);
   }
 }
 
